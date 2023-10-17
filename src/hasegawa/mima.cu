@@ -16,38 +16,40 @@ int main( int argc, char* argv[])
     ////Parameter initialisation ////////////////////////////////////////////
     std::stringstream title;
     Json::Value js;
-    if( argc == 1)
-        dg::file::file2Json( "input.json", js, dg::file::comments::are_discarded);
-    else if( argc == 2)
-        dg::file::file2Json( argv[1], js, dg::file::comments::are_discarded);
+    std::string inputfile = "input.json";
+    if( argc != 1) inputfile = argv[1];
+    if( argc < 3)
+        dg::file::file2Json(inputfile.c_str(), js, dg::file::comments::are_discarded, dg::file::error::is_throw);
     else
     {
         std::cerr << "ERROR: Too many arguments!\nUsage: "<< argv[0]<<" [filename]\n";
         return -1;
     }
-    const toefl::Parameters p( js);
+
+    toefl::Parameters p = {js};
     p.display( std::cout);
     /////////glfw initialisation ////////////////////////////////////////////
     dg::file::file2Json( "window_params.json", js, dg::file::comments::are_discarded);
     GLFWwindow* w = draw::glfwInitAndCreateWindow( js["width"].asDouble(), js["height"].asDouble(), "");
     draw::RenderHostData render(js["rows"].asDouble(), js["cols"].asDouble());
     /////////////////////////////////////////////////////////////////////////
-    dg::CartesianGrid2d grid( 0, p.lx, 0, p.ly, p.n, p.Nx, p.Ny, p.bcx, p.bcy);
+    dg::x::CartesianGrid2d grid( 0, p.lx, 0, p.ly, p.n, p.Nx, p.Ny, p.bcx, p.bcy);
     //create RHS
-    bool mhw = ( p.model == "fullF");
-    mima::Mima< dg::CartesianGrid2d, dg::DMatrix, dg::DVec > mima( grid, p.kappa, p.tau, p.eps_pol[0], p.nu, mhw);
-    dg::DVec one( grid.size(), 1.);
+    bool mhw = ( p.model == "global1");
+    std::cout << "\nSTARTING PARAMETER TEST OUTPUT \n\n"<< p.ly <<"\n" << p.lx<<"\nEND PARAMETER TEST OUTPUT\n\n";
+    mima::Mima< dg::x::CartesianGrid2d, dg::x::DMatrix, dg::x::DVec > mima( grid, p.kappa, p.tau, p.eps_pol[0], p.nu, mhw);
+    dg::x::DVec one( grid.size(), 1.);
     //create initial vector
     dg::Gaussian gaussian( p.posX*grid.lx(), p.posY*grid.ly(), p.sigma, p.sigma, p.amp); //gaussian width is in absolute values
     dg::Vortex vortex( p.posX*grid.lx(), p.posY*grid.ly(), 0, p.sigma, p.amp);
 
-//     dg::DVec phi = dg::evaluate( vortex, grid), omega( phi), y0(phi), y1(phi);
-    dg::DVec phi = dg::evaluate( gaussian, grid), omega( phi), y0(phi), y1(phi);
-    dg::Elliptic<dg::CartesianGrid2d, dg::DMatrix, dg::DVec> laplaceM( grid,  dg::centered);
+//     dg::x::DVec phi = dg::evaluate( vortex, grid), omega( phi), y0(phi), y1(phi);
+    dg::x::DVec phi = dg::evaluate( gaussian, grid), omega( phi), y0(phi), y1(phi);
+    dg::Elliptic<dg::x::CartesianGrid2d, dg::x::DMatrix, dg::x::DVec> laplaceM( grid, dg::centered);
     dg::blas2::gemv( laplaceM, phi, omega);
     dg::blas1::axpby( 1., phi, 1., omega, y0);
 
-    dg::DVec w2d( dg::create::weights( grid));
+    dg::x::DVec w2d( dg::create::weights( grid));
     if( p.bcx == dg::PER && p.bcy == dg::PER)
     {
         double meanMass = dg::blas2::dot( y0, w2d, one)/(double)(p.lx*p.ly);
@@ -58,7 +60,7 @@ int main( int argc, char* argv[])
     double rtol, atol, time = 0.;
     try{
         rtol = js["timestepper"].get("rtol", 1e-5).asDouble();
-        atol = js["timestepper"].get("atol", 1e-5).asDouble();
+        atol = js["timestepper"].get("atol", 1e-6).asDouble();
         tableau = js[ "timestepper"].get( "tableau",
                 "Bogacki-Shampine-4-2-3").asString();
     }catch ( std::exception& error){
@@ -67,15 +69,15 @@ int main( int argc, char* argv[])
         dg::abort_program();
     }
     DG_RANK0 std::cout<< "Construct timeloop ...\n";
-    dg::Adaptive< dg::ERKStep< dg::DVec>> adapt(tableau, y0);
+    dg::Adaptive< dg::ERKStep< dg::x::DVec>> adapt(tableau, y0);
 
-    dg::DVec dvisual( grid.size(), 0.);
+    dg::x::DVec dvisual( grid.size(), 0.);
     dg::HVec hvisual( grid.size(), 0.), visual(hvisual);
     dg::IHMatrix equi = dg::create::backscatter( grid);
     draw::ColorMapRedBlueExt colors( 1.);
     //create timer
     dg::Timer t;
-    double dt = 1e-5;
+    double dt = 1e-1;
     unsigned itstp = js["output"]["itstp"].asUInt();
     std::cout << "Begin computation \n";
     std::cout << std::scientific << std::setprecision( 2);
@@ -122,6 +124,7 @@ int main( int argc, char* argv[])
         for( unsigned i=0; i<itstp; i++)
         {
             step++;
+            std::cout <<step;
             if( p.bcx == dg::PER && p.bcy == dg::PER)
             {
                 double meanMass = dg::blas2::dot( y0, w2d, one)/(double)(p.lx*p.ly);
