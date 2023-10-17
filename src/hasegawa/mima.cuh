@@ -3,7 +3,6 @@
 #include <exception>
 
 #include "dg/algorithm.h"
-//#include "parameters.h"
 
 ///@note This is an old copy of the toefl project and shouldn't be taken as a basis for a new project
 
@@ -61,10 +60,10 @@ struct Mima
     dg::Helmholtz<Geometry, Matrix, Container> m_helmholtz;
 };
 
-template< class Geometry, class M, class Container>
-Mima< Geometry, M, Container>::Mima( const Geometry& grid, double kappa, double alpha, double eps, double nu, bool global ):
+template< class G, class M, class Container>
+Mima< G, M, Container>::Mima( const G& grid, double kappa, double alpha, double eps, double nu, bool global ):
     kappa( kappa), global(global),
-    phi( evaluate(dg::zero, grid)), dxphi( phi), dyphi( phi), omega(phi), lambda(phi),
+    phi( grid.size(), 0.), dxphi( phi), dyphi( phi), omega(phi), lambda(phi),
     chi(phi), nGinv(dg::evaluate(dg::ExpProfX(1.0, 0.0,kappa),grid)),
     dxxphi( phi), dxyphi(phi),
     m_laplaceM( grid,  dg::centered),
