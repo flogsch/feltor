@@ -1,7 +1,7 @@
 #pragma once
 #include <exception>
 
-#include "../../inc/dg/algorithm.h"
+#include "dg/algorithm.h"
 #include "parameters.h"
 
 namespace toefl

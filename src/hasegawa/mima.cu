@@ -4,7 +4,6 @@
 #include <sstream>
 
 #include "draw/host_window.h"
-
 //#include "draw/device_window.cuh"
 
 
@@ -18,36 +17,33 @@ int main( int argc, char* argv[])
     std::stringstream title;
     Json::Value js;
     if( argc == 1)
-        dg::file::file2Json( "input/default.json", js, dg::file::comments::are_discarded, dg::file::error::is_throw);
+        dg::file::file2Json( "input.json", js, dg::file::comments::are_discarded);
     else if( argc == 2)
-        dg::file::file2Json( argv[1], js, dg::file::comments::are_discarded, dg::file::error::is_throw);
+        dg::file::file2Json( argv[1], js, dg::file::comments::are_discarded);
     else
     {
         std::cerr << "ERROR: Too many arguments!\nUsage: "<< argv[0]<<" [filename]\n";
         return -1;
     }
-    std::cout<<"Point0\n";
-    toefl::Parameters p( js);std::cout<<"Point1\n";
-    p.display( std::cout); std::cout<<"Point2\n";
+    const toefl::Parameters p( js);
+    p.display( std::cout);
     /////////glfw initialisation ////////////////////////////////////////////
-    dg::file::file2Json( "window_params.json", js, dg::file::comments::are_discarded, dg::file::error::is_throw); std::cout<<"Point2\n";
-    GLFWwindow* w = draw::glfwInitAndCreateWindow( js["width"].asDouble(), js["height"].asDouble(), ""); std::cout<<"Point3\n";
+    dg::file::file2Json( "window_params.json", js, dg::file::comments::are_discarded);
+    GLFWwindow* w = draw::glfwInitAndCreateWindow( js["width"].asDouble(), js["height"].asDouble(), "");
     draw::RenderHostData render(js["rows"].asDouble(), js["cols"].asDouble());
     /////////////////////////////////////////////////////////////////////////
-    std::cout<<"Point10\n";
-    dg::x::CartesianGrid2d grid( 0, p.lx, 0, p.ly, p.n, p.Nx, p.Ny, p.bcx, p.bcy);
+    dg::CartesianGrid2d grid( 0, p.lx, 0, p.ly, p.n, p.Nx, p.Ny, p.bcx, p.bcy);
     //create RHS
-    
     bool mhw = ( p.model == "fullF");
-    mima::Mima< dg::x::CartesianGrid2d, dg::x::DMatrix, dg::x::DVec > mima( grid, p.kappa, p.tau, p.eps_pol[0], p.nu, mhw);
-    dg::x::DVec one( grid.size(), 1.);
+    mima::Mima< dg::CartesianGrid2d, dg::DMatrix, dg::DVec > mima( grid, p.kappa, p.tau, p.eps_pol[0], p.nu, mhw);
+    dg::DVec one( grid.size(), 1.);
     //create initial vector
     dg::Gaussian gaussian( p.posX*grid.lx(), p.posY*grid.ly(), p.sigma, p.sigma, p.amp); //gaussian width is in absolute values
     dg::Vortex vortex( p.posX*grid.lx(), p.posY*grid.ly(), 0, p.sigma, p.amp);
 
 //     dg::DVec phi = dg::evaluate( vortex, grid), omega( phi), y0(phi), y1(phi);
-    dg::x::DVec phi = dg::evaluate( gaussian, grid), omega( phi), y0(phi), y1(phi);
-    dg::Elliptic<dg::x::CartesianGrid2d, dg::x::DMatrix, dg::x::DVec> laplaceM( grid,  dg::centered);
+    dg::DVec phi = dg::evaluate( gaussian, grid), omega( phi), y0(phi), y1(phi);
+    dg::Elliptic<dg::CartesianGrid2d, dg::DMatrix, dg::DVec> laplaceM( grid,  dg::centered);
     dg::blas2::gemv( laplaceM, phi, omega);
     dg::blas1::axpby( 1., phi, 1., omega, y0);
 
