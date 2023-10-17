@@ -10,7 +10,7 @@
 
 #include "mima.cuh"
 #include "../toefl/parameters.h"
-#include "dg/file/json_utilities.h"
+#include "dg/file/json_utilities.h" 
 
 int main( int argc, char* argv[])
 {
