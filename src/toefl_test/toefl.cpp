@@ -53,11 +53,10 @@ int main( int argc, char* argv[])
         rhs( grid, p);
     //////////////////create initial vector///////////////////////////////////////
     dg::Gaussian g( p.posX*p.lx, p.posY*p.ly, p.sigma, p.sigma, p.amp); //gaussian width is in absolute values
-    std::array<dg::x::DVec,2 > y0({dg::evaluate( g, grid), dg::evaluate(g, grid)}),
+    dg::x::DVec y0(dg::evaluate( g, grid)),
         y1(y0); // n_e' = gaussian
     if( p.model == "local" || p.model == "global")
     {
-        dg::blas1::copy( y0[0], y0[1]);
         if( p.tau != 0)
         {
             std::string flr = js["init"]["flr"].asString();
@@ -65,13 +64,13 @@ int main( int argc, char* argv[])
                 ;
             else if( "gamma_inv" == flr)
             {
-                dg::apply( rhs.gamma_inv(), y0[0], y0[1]);
+                dg::apply( rhs.gamma_inv(), y0, y0);
             }
         }
     }
     if( p.model == "gravity_local" || p.model == "gravity_global" ||
             p.model == "drift_global"){
-        y0[1] = dg::evaluate( dg::zero, grid);
+        y0 = dg::evaluate( dg::zero, grid);
     }
     //////////////////////////////////////////////////////////////////////
     // Construct timestepper
@@ -88,7 +87,7 @@ int main( int argc, char* argv[])
         dg::abort_program();
     }
     DG_RANK0 std::cout<< "Construct timeloop ...\n";
-    using Vec = std::array< dg::x::DVec, 2>;
+    using Vec = dg::x::DVec;
     dg::Adaptive< dg::ERKStep< Vec>> adapt(tableau, y0);
     dg::AdaptiveTimeloop<Vec> timeloop( adapt, rhs,
                         dg::pid_control, dg::l2norm, rtol, atol);
@@ -126,7 +125,7 @@ int main( int argc, char* argv[])
         dg::IDMatrix equidistant = dg::create::backscatter( grid );
         // the things to plot:
         std::map<std::string, const dg::DVec* > v2d;
-        v2d["ne / "] = &y0[0];
+        v2d["ne / "] = &y0;
         v2d["Vor / "] = &rhs.phi(0);
         unsigned itstp = js["output"]["itstp"].asUInt();
         unsigned step = 0;

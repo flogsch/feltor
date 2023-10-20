@@ -1,4 +1,4 @@
-device=gpu
+device=cpu
 
 #configure machine
 include ../../config/default.mk
