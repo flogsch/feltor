@@ -1,0 +1,18 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{l+s+s2}{\PYGZdq{}output\PYGZdq{}}\PYG{o}{:}
+\PYG{p}{\PYGZob{}}
+    \PYG{c+c1}{// Use glfw to display results in a window while computing (requires to}
+    \PYG{c+c1}{// compile with the glfw3 library)}
+    \PYG{l+s+s2}{\PYGZdq{}type\PYGZdq{}}  \PYG{o}{:} \PYG{l+s+s2}{\PYGZdq{}glfw\PYGZdq{}}
+    \PYG{l+s+s2}{\PYGZdq{}itstp\PYGZdq{}}  \PYG{o}{:} \PYG{l+m+mf}{4}\PYG{p}{,} \PYG{c+c1}{// The number of steps between refreshing field plots}
+
+    \PYG{c+c1}{// Use netcdf to write results into a file (filename given on command line)}
+    \PYG{c+c1}{// (see next section for information about what is written in there)}
+    \PYG{l+s+s2}{\PYGZdq{}type\PYGZdq{}}  \PYG{o}{:} \PYG{l+s+s2}{\PYGZdq{}netcdf\PYGZdq{}}
+    \PYG{l+s+s2}{\PYGZdq{}tend\PYGZdq{}}  \PYG{o}{:} \PYG{l+m+mf}{4}\PYG{p}{,}    \PYG{c+c1}{// The number of steps between outputs of 2d fields}
+    \PYG{l+s+s2}{\PYGZdq{}maxout\PYGZdq{}}  \PYG{o}{:} \PYG{l+m+mf}{100}\PYG{p}{,} \PYG{c+c1}{// The total number of field outputs}
+    \PYG{l+s+s2}{\PYGZdq{}n\PYGZdq{}}  \PYG{o}{:} \PYG{l+m+mf}{3} \PYG{p}{,} \PYG{c+c1}{// The number of polynomial coefficients in the output file}
+    \PYG{l+s+s2}{\PYGZdq{}Nx\PYGZdq{}} \PYG{o}{:} \PYG{l+m+mf}{48}\PYG{p}{,} \PYG{c+c1}{// Number of cells in x in the output file}
+    \PYG{l+s+s2}{\PYGZdq{}Ny\PYGZdq{}} \PYG{o}{:} \PYG{l+m+mf}{48}  \PYG{c+c1}{// Number of cells in y in the output file}
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}

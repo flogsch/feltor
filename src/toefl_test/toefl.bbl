@@ -1,0 +1,30 @@
+\begin{thebibliography}{3}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Kube et~al.(2016)Kube, Garcia, and Wiesenberger]{Kube2016}
+R.~Kube, O.~E. Garcia, and M.~Wiesenberger.
+\newblock Amplitude and size scaling for interchange motions of plasma
+  filaments.
+\newblock \emph{Phys. Plasmas}, 23\penalty0 (12):\penalty0 122302, 2016.
+\newblock \doi{10.1063/1.4971220}.
+
+\bibitem[Wiesenberger et~al.(2014)Wiesenberger, Madsen, and
+  Kendl]{Wiesenberger2014}
+M.~Wiesenberger, J.~Madsen, and A.~Kendl.
+\newblock Radial convection of finite ion temperature, high amplitude plasma
+  blobs.
+\newblock \emph{Phys. Plasmas}, 21:\penalty0 092301, 2014.
+\newblock \doi{10.1063/1.4894220}.
+
+\bibitem[Wiesenberger et~al.(2017)Wiesenberger, Held, Kube, and
+  Garcia]{Wiesenberger2017a}
+M.~Wiesenberger, M.~Held, R.~Kube, and E.~O. Garcia.
+\newblock Unified transport scaling laws for plasma blobs and depletions.
+\newblock \emph{Physics of Plasmas}, 24\penalty0 (6):\penalty0 064502, 2017.
+\newblock \doi{10.1063/1.4985318}.
+
+\end{thebibliography}
