@@ -25,18 +25,18 @@ struct Explicit
     }
     unsigned ncalls() const{ return m_ncalls;}
 
-    void operator()( double t, const Container & y,
-            Container& yp);
+    void operator()( double t, const std::array<Container,2>& y,
+            std::array<Container,2>& yp);
 
     void compute_psi( double t);
-    void polarisation( double t, const Container& y);
+    void polarisation( double t, const std::array<Container,2>& y);
   private:
     //use chi and omega as helpers to compute square velocity in uE2
     Container m_chi, m_omega, m_uE2;
     const Container m_binv; //magnetic field
 
-    Container m_phi, m_dxphi, m_dyphi, m_ype;
-    Container m_lapy, m_v;
+    std::array<Container,2> m_phi, m_dxphi, m_dyphi, m_ype;
+    std::array<Container,2> m_lapy, m_v;
     Container m_gamma_n;
 
     //matrices and solvers
@@ -61,13 +61,13 @@ template< class Geometry, class M, class Container>
 Explicit< Geometry, M, Container>::Explicit( const Geometry& grid, const Parameters& p ):
     m_chi( evaluate( dg::zero, grid)), m_omega(m_chi), m_uE2(m_chi),
     m_binv( evaluate( dg::LinearX( p.kappa, 1.-p.kappa*p.posX*p.lx), grid)),
-    m_phi(m_chi), m_dxphi(m_phi), m_dyphi( m_phi), m_ype(m_phi),
+    m_phi( {m_chi, m_chi}), m_dxphi(m_phi), m_dyphi( m_phi), m_ype(m_phi),
     m_lapy(m_phi), m_v(m_phi),
     m_gamma_n(m_chi),
     m_laplaceM( grid,  p.diff_dir),
     m_adv( grid), m_arakawa(grid),
     m_multigrid( grid, p.num_stages),
-    m_old_phi( 1, m_chi), m_old_psi( 1, m_chi), m_old_gammaN( 1, m_chi),
+    m_old_phi( 2, m_chi), m_old_psi( 2, m_chi), m_old_gammaN( 2, m_chi),
     m_p(p)
 {
     m_multi_chi= m_multigrid.project( m_chi);
