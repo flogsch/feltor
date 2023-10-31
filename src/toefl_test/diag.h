@@ -48,17 +48,17 @@ std::map<std::string, std::vector<Record>> diagnostics2d_list = {
         []( dg::x::DVec& result, Variables& v) {
             dg::blas1::copy( v.rhs.var(0), result);
         }
-    },
+    },/*
     {"gy", "Ion-gyro-center density in 2d",
         []( dg::x::DVec& result, Variables& v) {
             dg::blas1::copy( v.rhs.var(1), result);
         }
-    },
+    },*/
     {"phi", "Electric potential",
         []( dg::x::DVec& result, Variables& v) {
             dg::blas1::copy(v.rhs.phi(0), result);
         }
-    },
+    },/*
     {"psi", "Gyro-center potential",
         []( dg::x::DVec& result, Variables& v) {
             dg::blas1::copy(v.rhs.phi(1), result);
@@ -96,7 +96,7 @@ std::map<std::string, std::vector<Record>> diagnostics2d_list = {
             dg::blas1::pointwiseDot( 0.5, v.rhs.var(1),
                      v.rhs.uE2(), 0., result);
         }
-    }
+    }*/
                 }
     },
     { "local", {
@@ -104,17 +104,17 @@ std::map<std::string, std::vector<Record>> diagnostics2d_list = {
         []( dg::x::DVec& result, Variables& v) {
             dg::blas1::copy( v.rhs.var(0), result);
         }
-    },
+    },/*
     {"gy", "Ion-gyro-center density in 2d",
         []( dg::x::DVec& result, Variables& v) {
             dg::blas1::copy( v.rhs.var(1), result);
         }
-    },
+    },*/
     {"phi", "Electric potential",
         []( dg::x::DVec& result, Variables& v) {
             dg::blas1::copy(v.rhs.phi(0), result);
         }
-    },
+    },/*
     {"psi", "Gyro-center potential",
         []( dg::x::DVec& result, Variables& v) {
             dg::blas1::copy(v.rhs.phi(1), result);
@@ -145,7 +145,7 @@ std::map<std::string, std::vector<Record>> diagnostics2d_list = {
             dg::blas1::pointwiseDot(  v.p.tau, v.rhs.var(1), v.rhs.var(1), 0.,
                     result);
         }
-    },
+    },*/
     {"U", " 0.5 u_E^2",
         []( dg::x::DVec& result, Variables& v) {
             dg::blas1::axpby( 0.5, v.rhs.uE2(), 0., result);
@@ -158,7 +158,7 @@ std::map<std::string, std::vector<Record>> diagnostics2d_list = {
         []( dg::x::DVec& result, Variables& v) {
             dg::blas1::copy( v.rhs.var(0), result);
         }
-    },
+    },/*
     {"rho", "Vorticity",
         []( dg::x::DVec& result, Variables& v) {
             dg::blas1::copy( v.rhs.var(1), result);
@@ -194,7 +194,7 @@ std::map<std::string, std::vector<Record>> diagnostics2d_list = {
             dg::blas1::transform( v.rhs.var(0), result, dg::LN<double>());
             dg::blas1::pointwiseDot(  v.rhs.var(0), result, result);
         }
-    },
+    },*/
     {"U", " 0.5 n u_E^2",
         []( dg::x::DVec& result, Variables& v) {
             dg::blas1::pointwiseDot( 0.5, v.rhs.var(0),
@@ -208,7 +208,7 @@ std::map<std::string, std::vector<Record>> diagnostics2d_list = {
         []( dg::x::DVec& result, Variables& v) {
             dg::blas1::copy( v.rhs.var(0), result);
         }
-    },
+    },/*
     {"rho", "Vorticity",
         []( dg::x::DVec& result, Variables& v) {
             dg::blas1::copy( v.rhs.var(1), result);
@@ -243,7 +243,7 @@ std::map<std::string, std::vector<Record>> diagnostics2d_list = {
         []( dg::x::DVec& result, Variables& v) {
             dg::blas1::pointwiseDot(  0.5, v.rhs.var(0), v.rhs.var(0), 0., result);
         }
-    },
+    },*/
     {"U", " 0.5 u_E^2",
         []( dg::x::DVec& result, Variables& v) {
             dg::blas1::axpby( 0.5, v.rhs.uE2(), 0., result);
@@ -256,7 +256,7 @@ std::map<std::string, std::vector<Record>> diagnostics2d_list = {
         []( dg::x::DVec& result, Variables& v) {
             dg::blas1::copy( v.rhs.var(0), result);
         }
-    },
+    },/*
     {"rho", "Vorticity",
         []( dg::x::DVec& result, Variables& v) {
             dg::blas1::copy( v.rhs.var(1), result);
@@ -286,7 +286,7 @@ std::map<std::string, std::vector<Record>> diagnostics2d_list = {
         []( dg::x::DVec& result, Variables& v) {
             dg::blas1::pointwiseDot(  0.5, v.rhs.var(0), v.rhs.var(0), 0., result);
         }
-    },
+    },*/
     {"U", " 0.5 u_E^2",
         []( dg::x::DVec& result, Variables& v) {
             dg::blas1::axpby( 0.5, v.rhs.uE2(), 0., result);
