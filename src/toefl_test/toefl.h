@@ -46,6 +46,8 @@ struct Explicit
     std::array<Matrix,2> m_centered;
     dg::Advection< Geometry, Matrix, Container> m_adv;
     dg::ArakawaX< Geometry, Matrix, Container> m_arakawa;
+    //dg::invert<Container> invert;
+    dg::Helmholtz2d<Geometry, Matrix, Container> m_helmholtz;
 
     dg::MultigridCG2d<Geometry, Matrix, Container> m_multigrid;
     dg::Extrapolation<Container> m_old_phi, m_old_psi, m_old_gammaN;
@@ -69,6 +71,9 @@ Explicit< Geometry, M, Container>::Explicit( const Geometry& grid, const Paramet
     m_multigrid( grid, p.num_stages),
     m_old_phi( 2, m_chi), m_old_psi( 2, m_chi), m_old_gammaN( 2, m_chi),
     m_p(p)
+    //invert( m_phi),
+    //m_helmholtz( grid, -1)
+
 {
     m_multi_chi= m_multigrid.project( m_chi);
     for( unsigned u=0; u<p.num_stages; u++)
@@ -195,47 +200,17 @@ void Explicit<G, M, Container>::operator()( double t,
     //y[0] = N_e - 1
     //y[1] = N_i - 1 || y[1] = Omega
 
-    polarisation( t, y);
-    compute_psi( t);
+    // polarisation( t, y);
+    // compute_psi( t);
+    dg::blas2::symv(m_centered[0],m_phi[0],y[0]); //invert should be the command here
+    dg::blas1::axpby( 1., m_phi[0], -1., y[0], m_chi); //chi = lap \phi
+    m_arakawa(m_phi[0], m_chi, yp[0]);
+    dg::blas2::symv( m_centered[1], m_phi[0], m_dyphi[0]);
+    dg::blas1::axpby(-1., m_dyphi[0], -1.,yp[0]);
 
+    /*
     ///////////////////////////////////////////////////////////////////////
-    if( m_p.model == "gravity_global")
-    {
-        dg::blas1::transform( y[0], m_ype[0], dg::PLUS<double>(1.));
-        dg::blas1::copy( y[1], m_ype[1]);
-
-        // ExB advection with updwind scheme
-        dg::blas2::symv( m_centered[0], m_phi[0], m_dxphi[0]);
-        dg::blas2::symv( m_centered[1], m_phi[0], m_dyphi[0]);
-        dg::blas1::pointwiseDot( -1., m_binv, m_dyphi[0], 0., m_v[0]);
-        dg::blas1::pointwiseDot( +1., m_binv, m_dxphi[0], 0., m_v[1]);
-        for( unsigned u=0; u<2; u++)
-        {
-            m_adv.upwind( -1., m_v[0], m_v[1], y[u], 0., yp[u]);
-        }
-        m_arakawa(1., y[0], m_phi[1], 1., yp[1]);
-        // diamagnetic compression
-        dg::blas2::gemv( -1., m_centered[1], y[0], 1., yp[1]);
-        // friction
-        dg::blas1::axpby( -m_p.friction, y[1], 1., yp[1]);
-
-    }
-    else if( m_p.model == "gravity_local")
-    {
-        dg::blas1::copy( y, m_ype);
-        for( unsigned u=0; u<2; u++)
-        {
-            // ExB advection with updwind scheme
-            dg::blas2::symv(  1., m_centered[0], m_phi[u], 0., m_v[1]);
-            dg::blas2::symv( -1., m_centered[1], m_phi[u], 0., m_v[0]);
-            m_adv.upwind( -1., m_v[0], m_v[1], y[u], 0., yp[u]);
-        }
-        // diamagnetic compression
-        dg::blas2::gemv( -1., m_centered[1], y[0], 1., yp[1]);
-        // friction
-        dg::blas1::axpby( -m_p.friction, y[1], 1., yp[1]);
-    }
-    else if( m_p.model == "drift_global")
+    if( m_p.model == "drift_global")
     {
         dg::blas1::transform( y[0], m_ype[0], dg::PLUS<double>(1.));
         dg::blas1::copy( y[1], m_ype[1]);
@@ -260,7 +235,7 @@ void Explicit<G, M, Container>::operator()( double t,
     }
     else if ( m_p.model == "global")
     {
-        dg::blas1::transform( y, m_ype, dg::PLUS<double>(1.));
+        dg::blas1::transform( y, m_ype, dg::PLUS<double>(1.)); // m_ype = y + 1
         std::array<double, 2> tau = {-1., m_p.tau};
         for( unsigned u=0; u<2; u++)
         {
@@ -270,7 +245,7 @@ void Explicit<G, M, Container>::operator()( double t,
             dg::blas1::pointwiseDot( -1., m_binv, m_dyphi[u], 0., m_v[0]);
             dg::blas1::pointwiseDot( +1., m_binv, m_dxphi[u], 0., m_v[1]);
             dg::blas1::plus( m_v[1], -tau[u]*m_p.kappa);
-            m_adv.upwind( -1., m_v[0], m_v[1], y[u], 0., yp[u]);
+            m_adv.upwind( -1., m_v[0], m_v[1], y[u], 0., yp[u]); // yp = 1/B *[y,phi] + tau*kappa*d(y)/dy
             // Div ExB velocity
             dg::blas1::pointwiseDot( m_p.kappa, m_ype[u], m_dyphi[u], 1., yp[u]);
         }
@@ -292,7 +267,7 @@ void Explicit<G, M, Container>::operator()( double t,
             dg::blas1::axpby( m_p.kappa, m_dyphi[u], 1., yp[u]);
         }
     }
-
+*/
     for( unsigned u=0; u<2; u++)
     {
         dg::blas2::symv( -1., m_laplaceM, y[u], 0., m_lapy[u]);

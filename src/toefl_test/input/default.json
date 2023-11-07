@@ -42,13 +42,13 @@
         "type" : "glfw",
         "itstp" : 2
     }
-    //"output":
-    //{
+    // "output":
+    // {
     //    "type" : "netcdf",
     //    "tend" : 1000,
     //    "maxout" : 50,
     //    "n" : 3,
     //    "Nx" : 100,
-    //    "Ny" : 100,
-    //}
+    //    "Ny" : 100
+    // }
 }
