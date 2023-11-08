@@ -53,8 +53,7 @@ int main( int argc, char* argv[])
         rhs( grid, p);
     //////////////////create initial vector///////////////////////////////////////
     dg::Gaussian g( p.posX*p.lx, p.posY*p.ly, p.sigma, p.sigma, p.amp); //gaussian width is in absolute values
-    std::array<dg::x::DVec,2 > y0({dg::evaluate( g, grid), dg::evaluate(g, grid)}),
-        y1(y0); // n_e' = gaussian
+    std::array<dg::x::DVec,2 > y0({dg::evaluate( g, grid), dg::evaluate(g, grid)}); // n_e' = gaussian
     if( p.model == "local" || p.model == "global")
     {
         dg::blas1::copy( y0[0], y0[1]);

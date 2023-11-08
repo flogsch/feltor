@@ -46,6 +46,9 @@ struct Explicit
     std::array<Matrix,2> m_centered;
     dg::Advection< Geometry, Matrix, Container> m_adv;
     dg::ArakawaX< Geometry, Matrix, Container> m_arakawa;
+    dg::PCG<Container> m_pcg;
+    dg::Extrapolation<Container> m_extra;
+    dg::Helmholtz<Geometry, Matrix, Container> m_helmholtz;
 
     dg::MultigridCG2d<Geometry, Matrix, Container> m_multigrid;
     dg::Extrapolation<Container> m_old_phi, m_old_psi, m_old_gammaN;
@@ -65,10 +68,14 @@ Explicit< Geometry, M, Container>::Explicit( const Geometry& grid, const Paramet
     m_lapy(m_phi), m_v(m_phi),
     m_gamma_n(m_chi),
     m_laplaceM( grid,  p.diff_dir),
+    m_pcg( m_phi[0], grid.size()),
+    m_extra( 2, m_phi[0]),
+    m_helmholtz( -1., {grid, dg::centered}),
     m_adv( grid), m_arakawa(grid),
     m_multigrid( grid, p.num_stages),
     m_old_phi( 2, m_chi), m_old_psi( 2, m_chi), m_old_gammaN( 2, m_chi),
     m_p(p)
+    
 {
     m_multi_chi= m_multigrid.project( m_chi);
     for( unsigned u=0; u<p.num_stages; u++)
@@ -192,9 +199,37 @@ void Explicit<G, M, Container>::operator()( double t,
         const std::array<Container,2>& y, std::array<Container,2>& yp)
 {
     m_ncalls ++ ;
+    
+    if(1){
+        //need to compute m_phi from y here!!!
+        m_extra.extrapolate( t, m_phi[0]);
+        m_pcg.solve(m_helmholtz, m_phi[0], y[0],
+                    m_helmholtz.precond(), m_helmholtz.weights(), m_p.eps_gamma[0]);
+        m_extra.update( t, m_phi[0]);
+
+        dg::blas1::axpby( 1., m_phi[0], -1., y[0], m_chi); //chi = lap \phi
+        m_arakawa( m_phi[0], m_chi, yp[0]);
+        //compute derivatives
+        dg::blas2::gemv( m_arakawa.dx(), m_phi[0], m_dxphi[0]);
+        dg::blas2::gemv( m_arakawa.dy(), m_phi[0], m_dyphi[0]);
+        //dg::blas2::gemv( m_arakawa.dx(), m_dxphi[0], m_dxxphi[0]);
+        //dg::blas2::gemv( m_arakawa.dy(), m_dxphi[0], m_dxyphi[0]);
+        //gradient terms
+        dg::blas1::axpby( -1, m_dyphi[0], 1., yp[0]);
+        
+
+
+        // dg::blas2::symv( -1., m_laplaceM, y[0], 0., m_lapy[0]);
+        // m_arakawa(1., y[0], m_lapy[0], -1., yp[0]);
+        // dg::blas2::symv( -1., m_dyphi[0], y[0], -1., yp[0]);
+        // dg::blas1::copy( yp[0], yp[1]);
+
+        dg::blas2::gemv( -m_p.nu, m_laplaceM, y[0], 1., yp[0]);
+    }
+    else{
+    
     //y[0] = N_e - 1
     //y[1] = N_i - 1 || y[1] = Omega
-
     polarisation( t, y);
     compute_psi( t);
 
@@ -297,6 +332,7 @@ void Explicit<G, M, Container>::operator()( double t,
     {
         dg::blas2::symv( -1., m_laplaceM, y[u], 0., m_lapy[u]);
         dg::blas1::axpby( m_p.nu, m_lapy[u], 1., yp[u]);
+    }
     }
     return;
 }

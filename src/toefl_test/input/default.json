@@ -11,7 +11,7 @@
     {
         "amplitude"  : 1.0,
         "sigma"  : 10,
-        "posX"  : 0.3,
+        "posX"  : 0.5,
         "posY"  : 0.5,
         "flr"  : "gamma_inv"
     },
@@ -31,11 +31,11 @@
     },
     "model" :
     {
-        "type": "global",
+        "type": "local",
         "boussinesq" : false,
         "curvature" : 0.00015,
-        "tau" : 1,
-        "nu" : 1e-6
+        "tau" : 0,
+        "nu" : 1e-4
     },
     "output":
     {
