@@ -53,7 +53,7 @@ int main( int argc, char* argv[])
         rhs( grid, p);
     //////////////////create initial vector///////////////////////////////////////
     dg::Gaussian g( p.posX*p.lx, p.posY*p.ly, p.sigma, p.sigma, p.amp); //gaussian width is in absolute values
-    std::array<dg::x::DVec,2 > y0({dg::evaluate( g, grid), dg::evaluate(g, grid)}); // n_e' = gaussian
+    dg::x::DVec y0(dg::evaluate( g, grid)); // n_e' = gaussian
 /*
     if( p.model == "gravity_local" || p.model == "gravity_global" ||
             p.model == "drift_global"){
@@ -74,7 +74,7 @@ int main( int argc, char* argv[])
         dg::abort_program();
     }
     DG_RANK0 std::cout<< "Construct timeloop ...\n";
-    using Vec = std::array< dg::x::DVec, 2>;
+    using Vec = dg::x::DVec;
     dg::Adaptive< dg::ERKStep< Vec>> adapt(tableau, y0);
     dg::AdaptiveTimeloop<Vec> timeloop( adapt, rhs,
                         dg::pid_control, dg::l2norm, rtol, atol);
@@ -112,8 +112,8 @@ int main( int argc, char* argv[])
         dg::IDMatrix equidistant = dg::create::backscatter( grid );
         // the things to plot:
         std::map<std::string, const dg::DVec* > v2d;
-        v2d["ne / "] = &y0[0];
-        v2d["Vor / "] = &rhs.phi(0);
+        v2d["ne / "] = &y0;
+        v2d["Vor / "] = &rhs.phi();
         unsigned itstp = js["output"]["itstp"].asUInt();
         unsigned step = 0;
 

@@ -46,7 +46,7 @@ std::map<std::string, std::vector<Record>> diagnostics2d_list = {
     { "global", {
     {"ne", "Electron density in 2d",
         []( dg::x::DVec& result, Variables& v) {
-            dg::blas1::copy( v.rhs.var(0), result);
+            dg::blas1::copy( v.rhs.var(), result);
         }
     },/*
     {"gy", "Ion-gyro-center density in 2d",
@@ -56,7 +56,7 @@ std::map<std::string, std::vector<Record>> diagnostics2d_list = {
     },*/
     {"phi", "Electric potential",
         []( dg::x::DVec& result, Variables& v) {
-            dg::blas1::copy(v.rhs.phi(0), result);
+            dg::blas1::copy(v.rhs.phi(), result);
         }
     },/*
     {"psi", "Gyro-center potential",
@@ -102,7 +102,7 @@ std::map<std::string, std::vector<Record>> diagnostics2d_list = {
     { "local", {
     {"ne", "Electron density in 2d",
         []( dg::x::DVec& result, Variables& v) {
-            dg::blas1::copy( v.rhs.var(0), result);
+            dg::blas1::copy( v.rhs.var(), result);
         }
     },/*
     {"gy", "Ion-gyro-center density in 2d",
@@ -112,7 +112,7 @@ std::map<std::string, std::vector<Record>> diagnostics2d_list = {
     },*/
     {"phi", "Electric potential",
         []( dg::x::DVec& result, Variables& v) {
-            dg::blas1::copy(v.rhs.phi(0), result);
+            dg::blas1::copy(v.rhs.phi(), result);
         }
     },/*
     {"psi", "Gyro-center potential",
@@ -156,7 +156,7 @@ std::map<std::string, std::vector<Record>> diagnostics2d_list = {
     { "drift-global", {
     {"n", "Electron density in 2d",
         []( dg::x::DVec& result, Variables& v) {
-            dg::blas1::copy( v.rhs.var(0), result);
+            dg::blas1::copy( v.rhs.var(), result);
         }
     },/*
     {"rho", "Vorticity",
@@ -197,7 +197,7 @@ std::map<std::string, std::vector<Record>> diagnostics2d_list = {
     },*/
     {"U", " 0.5 n u_E^2",
         []( dg::x::DVec& result, Variables& v) {
-            dg::blas1::pointwiseDot( 0.5, v.rhs.var(0),
+            dg::blas1::pointwiseDot( 0.5, v.rhs.var(),
                      v.rhs.uE2(), 0., result);
         }
     }
@@ -206,7 +206,7 @@ std::map<std::string, std::vector<Record>> diagnostics2d_list = {
     { "gravity-global", {
     {"n", "Electron density in 2d",
         []( dg::x::DVec& result, Variables& v) {
-            dg::blas1::copy( v.rhs.var(0), result);
+            dg::blas1::copy( v.rhs.var(), result);
         }
     },/*
     {"rho", "Vorticity",
@@ -254,7 +254,7 @@ std::map<std::string, std::vector<Record>> diagnostics2d_list = {
     { "gravity-local", {
     {"n", "Electron density in 2d",
         []( dg::x::DVec& result, Variables& v) {
-            dg::blas1::copy( v.rhs.var(0), result);
+            dg::blas1::copy( v.rhs.var(), result);
         }
     },/*
     {"rho", "Vorticity",
