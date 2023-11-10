@@ -20,9 +20,6 @@ struct Explicit
         return m_laplaceM;
     }
 
-    dg::Helmholtz<Geometry, Matrix, Container >&  gamma_inv() {
-        return m_multi_gamma1[0];
-    }
     unsigned ncalls() const{ return m_ncalls;}
 
     void operator()( double t, const std::array<Container,2>& y,
@@ -40,18 +37,13 @@ struct Explicit
 
     //matrices and solvers
     dg::Elliptic<Geometry, Matrix, Container> m_laplaceM;
-    std::vector<dg::Elliptic<Geometry, Matrix, Container> > m_multi_pol;
-    std::vector<dg::Helmholtz<Geometry,  Matrix, Container> > m_multi_gamma1;
+
     std::array<Matrix,2> m_centered;
     dg::Advection< Geometry, Matrix, Container> m_adv;
     dg::ArakawaX< Geometry, Matrix, Container> m_arakawa;
     dg::PCG<Container> m_pcg;
     dg::Extrapolation<Container> m_extra;
     dg::Helmholtz<Geometry, Matrix, Container> m_helmholtz;
-
-    dg::MultigridCG2d<Geometry, Matrix, Container> m_multigrid;
-    dg::Extrapolation<Container> m_old_phi, m_old_psi, m_old_gammaN;
-    std::vector<Container> m_multi_chi;
 
     Parameters m_p;
 
@@ -71,17 +63,8 @@ Explicit< Geometry, M, Container>::Explicit( const Geometry& grid, const Paramet
     m_extra( 2, m_phi[0]),
     m_helmholtz( -1., {grid, dg::centered}),
     m_adv( grid), m_arakawa(grid),
-    m_multigrid( grid, p.num_stages),
-    m_old_phi( 2, m_chi), m_old_psi( 2, m_chi), m_old_gammaN( 2, m_chi),
-    m_p(p)
-    
+    m_p(p)   
 {
-    m_multi_chi= m_multigrid.project( m_chi);
-    for( unsigned u=0; u<p.num_stages; u++)
-    {
-        m_multi_pol.push_back({ m_multigrid.grid(u),  p.pol_dir, 1.});
-        m_multi_gamma1.push_back({-0.5*p.tau, { m_multigrid.grid(u), p.pol_dir}});
-    }
     m_centered = {dg::create::dx( grid, m_p.bcx),
                   dg::create::dy( grid, m_p.bcy)};
 }

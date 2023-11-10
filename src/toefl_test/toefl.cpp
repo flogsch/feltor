@@ -54,24 +54,11 @@ int main( int argc, char* argv[])
     //////////////////create initial vector///////////////////////////////////////
     dg::Gaussian g( p.posX*p.lx, p.posY*p.ly, p.sigma, p.sigma, p.amp); //gaussian width is in absolute values
     std::array<dg::x::DVec,2 > y0({dg::evaluate( g, grid), dg::evaluate(g, grid)}); // n_e' = gaussian
-    if( p.model == "local" || p.model == "global")
-    {
-        dg::blas1::copy( y0[0], y0[1]);
-        if( p.tau != 0)
-        {
-            std::string flr = js["init"]["flr"].asString();
-            if( "none" == flr)
-                ;
-            else if( "gamma_inv" == flr)
-            {
-                dg::apply( rhs.gamma_inv(), y0[0], y0[1]);
-            }
-        }
-    }
+/*
     if( p.model == "gravity_local" || p.model == "gravity_global" ||
             p.model == "drift_global"){
         y0[1] = dg::evaluate( dg::zero, grid);
-    }
+    }*/
     //////////////////////////////////////////////////////////////////////
     // Construct timestepper
     std::string tableau;
