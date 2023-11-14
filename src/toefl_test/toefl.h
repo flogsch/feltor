@@ -31,7 +31,7 @@ struct Explicit
     Container m_chi, m_omega, m_uE2;
     const Container m_binv; //magnetic field
 
-    Container m_phi, m_dxphi, m_dyphi, m_ype;
+    Container m_phi, m_dxphi, m_dyphi, m_ype, m_vx, m_vy;
     Container m_gamma_n;
 
     //matrices and solvers
@@ -54,7 +54,7 @@ template< class Geometry, class M, class Container>
 Explicit< Geometry, M, Container>::Explicit( const Geometry& grid, const Parameters& p ):
     m_chi( evaluate( dg::zero, grid)), m_omega(m_chi), m_uE2(m_chi),
     m_binv( evaluate( dg::LinearX( p.kappa, 1.-p.kappa*p.posX*p.lx), grid)),
-    m_phi( m_chi), m_dxphi(m_phi), m_dyphi( m_phi), m_ype(m_phi),
+    m_phi( m_chi), m_dxphi(m_phi), m_dyphi( m_phi), m_ype(m_phi), m_vx(m_phi), m_vy(m_phi),
     m_gamma_n(m_chi),
     m_laplaceM( grid,  p.diff_dir),
     m_pcg( m_phi, grid.size()),
@@ -75,17 +75,25 @@ void Explicit<G, M, Container>::operator()( double t,
     m_ncalls ++ ;
     
    
-    //need to compute m_phi from y here!!!
+    //need to compute m_phi from y here!!! (y = phi - lap phi)
     m_extra.extrapolate( t, m_phi);
     m_pcg.solve(m_helmholtz, m_phi, y,
                 m_helmholtz.precond(), m_helmholtz.weights(), m_p.eps_gamma[0]);
     m_extra.update( t, m_phi);
 
     dg::blas1::axpby( 1., m_phi, -1., y, m_chi); //chi = lap \phi
-    m_arakawa( m_phi, m_chi, yp);
     //compute derivatives
-    dg::blas2::gemv( m_arakawa.dx(), m_phi, m_dxphi);
-    dg::blas2::gemv( m_arakawa.dy(), m_phi, m_dyphi);
+    dg::blas2::symv( m_centered[0], m_phi, m_dxphi);
+    dg::blas2::symv( m_centered[1], m_phi, m_dyphi);
+
+    dg::blas1::axpby(-1., m_dyphi, 0., m_vx); //compute ExB velocities
+    dg::blas1::axpby(1., m_dxphi, 0., m_vy);
+    
+    m_adv.upwind( 1., m_vx, m_vy, m_chi, 0., yp);
+    //m_arakawa( m_phi, m_chi, yp);
+
+    //dg::blas2::gemv( m_arakawa.dx(), m_phi, m_dxphi);
+    //dg::blas2::gemv( m_arakawa.dy(), m_phi, m_dyphi);
 
     //gradient terms
     dg::blas1::axpby( -1, m_dyphi, 1., yp);
