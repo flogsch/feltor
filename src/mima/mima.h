@@ -57,10 +57,10 @@ Explicit< Geometry, M, Container>::Explicit( const Geometry& grid, const Paramet
     m_phi( m_chi), m_dxphi(m_phi), m_dyphi( m_phi), m_ype(m_phi), m_vx(m_phi), m_vy(m_phi),
     m_gamma_n(m_chi),
     m_laplaceM( grid,  p.diff_dir),
+    m_adv( grid), m_arakawa(grid),
     m_pcg( m_phi, grid.size()),
     m_extra( 2, m_phi),
     m_helmholtz( -1., {grid, dg::centered}),
-    m_adv( grid), m_arakawa(grid),
     m_p(p)   
 {
     m_centered = {dg::create::dx( grid, m_p.bcx),
