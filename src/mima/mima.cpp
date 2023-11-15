@@ -190,7 +190,7 @@ int main( int argc, char* argv[])
             dg::abort_program();
         }
         std::map<std::string, std::string> att;
-        att["title"] = "Output file of feltor/src/toefl_test/mima.cpp";
+        att["title"] = "Output file of feltor/src/mima/mima.cpp";
         att["Conventions"] = "CF-1.8";
         ///Get local time and begin file history
         auto ttt = std::time(nullptr);
@@ -200,7 +200,7 @@ int main( int argc, char* argv[])
         oss << std::put_time(std::localtime(&ttt), "%F %T %Z");
         for( int i=0; i<argc; i++) oss << " "<<argv[i];
         att["history"] = oss.str();
-        att["comment"] = "Find more info in feltor/src/toefl_test/toefl.tex";
+        att["comment"] = "Find more info in feltor/src/mima/mima.tex";
         att["source"] = "FELTOR";
         att["git-hash"] = GIT_HASH;
         att["git-branch"] = GIT_BRANCH;

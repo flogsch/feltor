@@ -20,13 +20,13 @@ mima_mpi: mima.cpp mima.h parameters.h diag.h
 	$(MPICC) $(OPT) $(MPICFLAGS) $< -o $@ $(INCLUDE) $(LIBS) $(JSONLIB) $(VERSION_FLAGS)
 
 doc:
-	pdflatex -shell-escape ./toefl.tex;
-	bibtex toefl.aux;
-	pdflatex -shell-escape ./toefl.tex;
-	pdflatex -shell-escape ./toefl.tex;
+	pdflatex -shell-escape ./mima.tex;
+	bibtex mima.aux;
+	pdflatex -shell-escape ./mima.tex;
+	pdflatex -shell-escape ./mima.tex;
 
 
 .PHONY: clean doc
 
 clean:
-	rm -rf mima mima_hpc mima_mpi toefl.aux mima.log mima.out mima.pyg toefl.pdf toefl.bbl toefl.blg
+	rm -rf mima mima_hpc mima_mpi mima.aux mima.log mima.out mima.pyg mima.pdf mima.bbl mima.blg
