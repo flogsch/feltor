@@ -81,7 +81,7 @@ void Explicit<G, M, Container>::operator()( double t,
     m_pcg.solve(m_helmholtz, m_phi, y,
                 m_helmholtz.precond(), m_helmholtz.weights(), m_p.eps_gamma[0]);
     m_extra.update( t, m_phi);
-
+    //dg::blas2::symv(m_laplaceM, m_phi, m_chi);
     dg::blas1::axpby( 1., m_phi, -1., y, m_chi); //chi = lap \phi
     //compute derivatives
     dg::blas2::symv( m_centered[0], m_phi, m_dxphi);
