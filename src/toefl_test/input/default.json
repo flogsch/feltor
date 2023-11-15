@@ -35,7 +35,7 @@
         "boussinesq" : false,
         "curvature" : 0.00015,
         "tau" : 0,
-        "nu" : 1e-3
+        "nu" : 1e-8
     },
     "output":
     {
