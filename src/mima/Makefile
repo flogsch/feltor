@@ -29,4 +29,4 @@ doc:
 .PHONY: clean doc
 
 clean:
-	rm -rf mima mima_hpc mima_mpi mima.aux mima.log mima.out mima.pyg mima.pdf mima.bbl mima.blg
+	rm -rf mima mima_hpc mima_mpi mima.aux mima.log mima.out mima.pyg mima.pdf mima.bbl mima.blg _minted-mima mima.toc
