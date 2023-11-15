@@ -4,7 +4,7 @@
 #include "dg/algorithm.h"
 #include "parameters.h"
 
-namespace toefl
+namespace mima
 {
 
 template< class Geometry,  class Matrix, class Container >
@@ -86,14 +86,13 @@ void Explicit<G, M, Container>::operator()( double t,
     dg::blas2::symv( m_centered[0], m_phi, m_dxphi);
     dg::blas2::symv( m_centered[1], m_phi, m_dyphi);
 
-    dg::blas1::axpby(-1., m_dyphi, 0., m_vx); //compute ExB velocities
-    dg::blas1::axpby(1., m_dxphi, 0., m_vy);
+    //dg::blas1::axpby(-1., m_dyphi, 0., m_vx); //compute ExB velocities
+    //dg::blas1::axpby(1., m_dxphi, 0., m_vy);
     
-    m_adv.upwind( 1., m_vx, m_vy, m_chi, 0., yp);
-    //m_arakawa( m_phi, m_chi, yp);
-
-    //dg::blas2::gemv( m_arakawa.dx(), m_phi, m_dxphi);
-    //dg::blas2::gemv( m_arakawa.dy(), m_phi, m_dyphi);
+    //m_adv.upwind( 1., m_vx, m_vy, m_chi, 0., yp);
+    dg::blas2::symv( 1., m_centered[1], m_chi, 0.,  m_vx);
+    dg::blas2::symv( -1., m_centered[0], m_chi, 0.,  m_vy);
+    m_adv.upwind( 1., m_vx, m_vy, m_phi, 0., yp);
 
     //gradient terms
     dg::blas1::axpby( -1, m_dyphi, 1., yp);

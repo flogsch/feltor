@@ -13,7 +13,7 @@
 #include "dg/algorithm.h"
 #include "dg/file/file.h"
 
-#include "toefl.h"
+#include "mima.h"
 #include "diag.h"
 
 int main( int argc, char* argv[])
@@ -26,7 +26,7 @@ int main( int argc, char* argv[])
     MPI_Comm_rank( MPI_COMM_WORLD, &rank);
 #endif //WITH_MPI
     dg::file::WrappedJsonValue js( dg::file::error::is_throw);
-    toefl::Parameters p;
+    mima::Parameters p;
     try{
         std::string inputfile = "input/default.json";
         if( argc != 1) inputfile = argv[1];
@@ -49,7 +49,7 @@ int main( int argc, char* argv[])
         #endif //WITH_MPI
         );
     //create RHS
-    toefl::Explicit<dg::x::CartesianGrid2d, dg::x::DMatrix, dg::x::DVec>
+    mima::Explicit<dg::x::CartesianGrid2d, dg::x::DMatrix, dg::x::DVec>
         rhs( grid, p);
     //////////////////create initial vector///////////////////////////////////////
     dg::Gaussian g( p.posX*p.lx, p.posY*p.ly, p.sigma, p.sigma, p.amp); //gaussian width is in absolute values
@@ -81,7 +81,7 @@ int main( int argc, char* argv[])
 
     ////////////////////////////////////////////////////////////////////
 
-    toefl::Variables var = { rhs, grid, p};
+    mima::Variables var = { rhs, grid, p};
     // trigger first computation of potential
     {
         DG_RANK0 std::cout<< "First potential\n";
@@ -175,7 +175,7 @@ int main( int argc, char* argv[])
     {
         std::string outputfile;
         if( argc == 1 || argc == 2)
-            outputfile = "toefl.nc";
+            outputfile = "mima.nc";
         else
             outputfile = argv[2];
         // Create netcdf file
@@ -190,7 +190,7 @@ int main( int argc, char* argv[])
             dg::abort_program();
         }
         std::map<std::string, std::string> att;
-        att["title"] = "Output file of feltor/src/toefl/toefl.cpp";
+        att["title"] = "Output file of feltor/src/toefl_test/mima.cpp";
         att["Conventions"] = "CF-1.8";
         ///Get local time and begin file history
         auto ttt = std::time(nullptr);
@@ -200,7 +200,7 @@ int main( int argc, char* argv[])
         oss << std::put_time(std::localtime(&ttt), "%F %T %Z");
         for( int i=0; i<argc; i++) oss << " "<<argv[i];
         att["history"] = oss.str();
-        att["comment"] = "Find more info in feltor/src/toefl/toefl.tex";
+        att["comment"] = "Find more info in feltor/src/toefl_test/toefl.tex";
         att["source"] = "FELTOR";
         att["git-hash"] = GIT_HASH;
         att["git-branch"] = GIT_BRANCH;
@@ -229,7 +229,7 @@ int main( int argc, char* argv[])
                         {"time", "y", "x"});
 
         std::map<std::string, int> id3d;
-        for( auto& record : toefl::diagnostics2d_list.at( p.model))
+        for( auto& record : mima::diagnostics2d_list.at( p.model))
         {
             std::string name = record.name;
             std::string long_name = record.long_name;
@@ -242,7 +242,7 @@ int main( int argc, char* argv[])
         dg::x::HVec resultH = dg::evaluate( dg::zero, grid);
         dg::x::HVec transferH = dg::evaluate( dg::zero, grid_out);
         dg::x::DVec resultD = transferH; // transfer to device
-        for( auto& record : toefl::diagnostics2d_static_list)
+        for( auto& record : mima::diagnostics2d_static_list)
         {
             std::string name = record.name;
             std::string long_name = record.long_name;
@@ -259,7 +259,7 @@ int main( int argc, char* argv[])
         dg::x::DVec volume = dg::create::volume( grid);
         size_t start = {0};
         size_t count = {1};
-        for( auto& record : toefl::diagnostics2d_list.at( p.model))
+        for( auto& record : mima::diagnostics2d_list.at( p.model))
         {
             record.function( resultD, var);
             dg::assign( resultD, resultH);
@@ -299,7 +299,7 @@ int main( int argc, char* argv[])
             DG_RANK0 err = nc_open(outputfile.c_str(), NC_WRITE, &ncid);
             // First write the time variable
             DG_RANK0 err = nc_put_vara_double( ncid, tvarID, &start, &count, &time);
-            for( auto& record : toefl::diagnostics2d_list.at(p.model))
+            for( auto& record : mima::diagnostics2d_list.at(p.model))
             {
                 record.function( resultD, var);
                 dg::assign( resultD, resultH);

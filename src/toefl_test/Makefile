@@ -1,4 +1,4 @@
-device=gpu
+device=omp
 
 #configure machine
 include ../../config/default.mk
@@ -8,15 +8,15 @@ include ../../config/devices/devices.mk
 
 INCLUDE+= -I../../inc   # other project libraries
 
-all: toefl toefl_hpc toefl_mpi
+all: mima mima_hpc mima_mpi
 
-toefl: toefl.cpp toefl.h parameters.h diag.h
+mima: mima.cpp mima.h parameters.h diag.h
 	$(CC) $(OPT) $(CFLAGS) $< -o $@ $(INCLUDE) $(GLFLAGS) $(LIBS) $(JSONLIB) $(VERSION_FLAGS) -DWITH_GLFW -g
 
-toefl_hpc: toefl.cpp toefl.h parameters.h diag.h
+mima_hpc: mima.cpp mima.h parameters.h diag.h
 	$(CC) $(OPT) $(CFLAGS) $< -o $@ $(INCLUDE) $(LIBS) $(JSONLIB) $(VERSION_FLAGS) -g
 
-toefl_mpi: toefl.cpp toefl.h parameters.h diag.h
+mima_mpi: mima.cpp mima.h parameters.h diag.h
 	$(MPICC) $(OPT) $(MPICFLAGS) $< -o $@ $(INCLUDE) $(LIBS) $(JSONLIB) $(VERSION_FLAGS)
 
 doc:
@@ -29,4 +29,4 @@ doc:
 .PHONY: clean doc
 
 clean:
-	rm -rf toefl toefl_hpc toefl_mpi toefl.aux toefl.log toefl.out toefl.pyg toefl.pdf toefl.bbl toefl.blg
+	rm -rf mima mima_hpc mima_mpi toefl.aux mima.log mima.out mima.pyg toefl.pdf toefl.bbl toefl.blg

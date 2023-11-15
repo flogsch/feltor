@@ -1,10 +1,10 @@
 #pragma once
 // diag.h
 #pragma once
-#include "toefl.h"
+#include "mima.h"
 #include "parameters.h"
 
-namespace toefl
+namespace mima
 {
 
 struct Variables

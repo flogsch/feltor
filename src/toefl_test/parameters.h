@@ -4,7 +4,7 @@
 #include "dg/file/json_utilities.h"
 #include "json/json.h"
 
-namespace toefl{
+namespace mima{
 
 struct Parameters
 {
@@ -113,4 +113,4 @@ struct Parameters
             <<"Stopping for Gamma CG:   "<<eps_gamma[0]<<std::endl;
     }
 };
-}//namespace toefl
+}//namespace mima
