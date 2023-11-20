@@ -12,6 +12,7 @@ struct Explicit
 {
     Explicit( const Geometry& g, const Parameters& p );
 
+    const Container& chi() const { return m_chi;}
     const Container& phi() const { return m_phi;}
     const Container& var() const { return m_ype;}
     const Container& uE2() const { return m_uE2;}
@@ -32,6 +33,7 @@ struct Explicit
     const Container m_binv; //magnetic field
 
     Container m_phi, m_dxphi, m_dyphi, m_ype, m_vx, m_vy;
+    Matrix m_dxx, m_dyy, m_mylaplace;
     Container m_gamma_n;
 
     //matrices and solvers
@@ -65,6 +67,10 @@ Explicit< Geometry, M, Container>::Explicit( const Geometry& grid, const Paramet
 {
     m_centered = {dg::create::dx( grid, m_p.bcx),
                   dg::create::dy( grid, m_p.bcy)};
+    //m_dxx = dg::create::dx( grid, m_p.bcx);
+    //dg::MultiMatrix(dg::create::dx( grid, m_p.bcx), m_dxx);
+    //dg::blas2::symv( m_centered[0], m_centered[0], m_dxx);
+    //dg::blas2::symv( m_centered[1], m_centered[1], m_dyy);
 }
 
 

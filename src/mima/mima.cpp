@@ -112,8 +112,8 @@ int main( int argc, char* argv[])
         dg::IDMatrix equidistant = dg::create::backscatter( grid );
         // the things to plot:
         std::map<std::string, const dg::DVec* > v2d;
-        v2d["ne / "] = &y0;
-        v2d["Vor / "] = &rhs.phi();
+        v2d["ne / "] = &rhs.phi();
+        v2d["Vor / "] = &rhs.chi();
         unsigned itstp = js["output"]["itstp"].asUInt();
         unsigned step = 0;
 
@@ -123,8 +123,9 @@ int main( int argc, char* argv[])
             {
                 if( pair.first == "Vor / " )
                 {
-                    dg::blas2::gemv( rhs.laplacianM(), *pair.second, temp);
-                    dg::blas2::gemv( equidistant, temp, visual);
+                    //dg::blas1::axpby(1., rhs.phi(), -1., y0, 0.,temp);
+                    //dg::blas2::gemv( rhs.laplacianM(), *pair.second, temp);
+                    dg::blas2::gemv( equidistant, rhs.chi(), visual);
                 }
                 else
                     dg::blas2::gemv( equidistant, *pair.second, visual);
