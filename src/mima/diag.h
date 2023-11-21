@@ -90,12 +90,12 @@ std::map<std::string, std::vector<Record>> diagnostics2d_list = {
             dg::blas1::pointwiseDot(  v.p.tau, v.rhs.var(1), v.rhs.var(1), 0.,
                     result);
         }
-    },
+    },*/
     {"U", " 0.5 u_E^2",
         []( dg::x::DVec& result, Variables& v) {
             dg::blas1::axpby( 0.5, v.rhs.uE2(), 0., result);
         }
-    }*/
+    }
                 }
     },
     { "drift-global", {

@@ -13,7 +13,6 @@ src/feltor/doc/
 *_mpib
 *_mpit
 *.nc
-*.py
 *.in
 *.out
 *.dat
