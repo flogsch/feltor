@@ -14,8 +14,7 @@ struct Explicit
 
     const Container& chi() const { return m_chi;}
     const Container& phi() const { return m_phi;}
-    const Container& var() const { return m_ype;}
-    const Container& uE2() const { return m_uE2;}
+    const Container& uE2() const { return m_uE2;}        
 
     dg::Elliptic<Geometry, Matrix, Container>& laplacianM( ) {
         return m_laplaceM;
@@ -29,19 +28,14 @@ struct Explicit
     
   private:
     //use chi and omega as helpers to compute square velocity in uE2
-    Container m_chi, m_omega, m_uE2;
-    const Container m_binv; //magnetic field
-
-    Container m_phi, m_dxphi, m_dyphi, m_ype, m_vx, m_vy;
-    Matrix m_dxx, m_dyy, m_mylaplace;
-    Container m_gamma_n;
+    Container m_chi, m_uE2;
+    Container m_phi, m_dxphi, m_dyphi, m_vx, m_vy;
 
     //matrices and solvers
     dg::Elliptic<Geometry, Matrix, Container> m_laplaceM;
 
     std::array<Matrix,2> m_centered;
     dg::Advection< Geometry, Matrix, Container> m_adv;
-    dg::ArakawaX< Geometry, Matrix, Container> m_arakawa;
     dg::PCG<Container> m_pcg;
     dg::Extrapolation<Container> m_extra;
     dg::Helmholtz<Geometry, Matrix, Container> m_helmholtz;
@@ -54,12 +48,10 @@ struct Explicit
 
 template< class Geometry, class M, class Container>
 Explicit< Geometry, M, Container>::Explicit( const Geometry& grid, const Parameters& p ):
-    m_chi( evaluate( dg::zero, grid)), m_omega(m_chi), m_uE2(m_chi),
-    m_binv( evaluate( dg::LinearX( p.kappa, 1.-p.kappa*p.posX*p.lx), grid)),
-    m_phi( m_chi), m_dxphi(m_phi), m_dyphi( m_phi), m_ype(m_phi), m_vx(m_phi), m_vy(m_phi),
-    m_gamma_n(m_chi),
+    m_chi( evaluate( dg::zero, grid)), m_uE2(m_chi),
+    m_phi( m_chi), m_dxphi(m_phi), m_dyphi( m_phi), m_vx(m_phi), m_vy(m_phi),
     m_laplaceM( grid,  p.diff_dir),
-    m_adv( grid), m_arakawa(grid),
+    m_adv( grid),
     m_pcg( m_phi, grid.size()),
     m_extra( 2, m_phi),
     m_helmholtz( -1., {grid, dg::centered}),
@@ -67,10 +59,6 @@ Explicit< Geometry, M, Container>::Explicit( const Geometry& grid, const Paramet
 {
     m_centered = {dg::create::dx( grid, m_p.bcx),
                   dg::create::dy( grid, m_p.bcy)};
-    //m_dxx = dg::create::dx( grid, m_p.bcx);
-    //dg::MultiMatrix(dg::create::dx( grid, m_p.bcx), m_dxx);
-    //dg::blas2::symv( m_centered[0], m_centered[0], m_dxx);
-    //dg::blas2::symv( m_centered[1], m_centered[1], m_dyy);
 }
 
 
@@ -83,9 +71,9 @@ void Explicit<G, M, Container>::operator()( double t,
     //need to compute m_phi from y here!!! (y = phi - lap phi)
     m_extra.extrapolate( t, m_phi);
     m_pcg.solve(m_helmholtz, m_phi, y,
-                m_helmholtz.precond(), m_helmholtz.weights(), m_p.eps_gamma[0]);
+                m_helmholtz.precond(), m_helmholtz.weights(), m_p.eps_gamma);
     m_extra.update( t, m_phi);
-    //dg::blas2::symv(m_laplaceM, m_phi, m_chi);
+    //dg::blas2::symv(m_laplaceM, m_phi, m_chi); //alternative variante für chi
     dg::blas1::axpby( -1., m_phi, 1., y, m_chi); //chi = lap \phi
     //compute derivatives
     dg::blas2::symv( m_centered[0], m_phi, m_dxphi);
@@ -98,6 +86,8 @@ void Explicit<G, M, Container>::operator()( double t,
     //gradient terms
     dg::blas1::axpby( -m_p.kappa, m_dyphi, 1., yp);
     
+    //compute uE2
+    m_laplaceM.variation(m_phi, m_uE2);
 
     return;
 }

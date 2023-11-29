@@ -43,57 +43,22 @@ std::vector<Record> diagnostics2d_static_list = {
 
 // time - dependent output (called periodically)
 std::map<std::string, std::vector<Record>> diagnostics2d_list = {
-    { "local", {/*
-    {"ne", "Electron density in 2d",
-        []( dg::x::DVec& result, Variables& v) {
-            dg::blas1::copy( v.rhs.var(), result);
-        }
-    },
-    {"gy", "Ion-gyro-center density in 2d",
-        []( dg::x::DVec& result, Variables& v) {
-            dg::blas1::copy( v.rhs.var(1), result);
-        }
-    },*/
+    { "local", {
     {"phi", "Electric potential",
         []( dg::x::DVec& result, Variables& v) {
             dg::blas1::copy(v.rhs.phi(), result);
         }
-    },/*
-    {"psi", "Gyro-center potential",
-        []( dg::x::DVec& result, Variables& v) {
-            dg::blas1::copy(v.rhs.phi(1), result);
-        }
     },
-    {"lapNe", "+Delta ne",
-        []( dg::x::DVec& result, Variables& v) {
-            dg::blas2::gemv( -1., v.rhs.laplacianM(), v.rhs.var(0), 0., result);
-        }
-    },
-    {"lapNi", "+Delta ni",
-        []( dg::x::DVec& result, Variables& v) {
-            dg::blas2::gemv( -1., v.rhs.laplacianM(), v.rhs.var(1), 0., result);
-        }
-    },*/
     {"vort", "Vorticity",
         []( dg::x::DVec& result, Variables& v) {
             //dg::blas2::gemv( 1., v.rhs.laplacianM(), v.rhs.phi(), 0., result);
             dg::blas1::copy(v.rhs.chi(), result);
         }
-    },/*
-    {"Se", " 0.5 ne^2 ",
-        []( dg::x::DVec& result, Variables& v) {
-            dg::blas1::pointwiseDot( 1., v.rhs.var(0), v.rhs.var(0), 0., result);
-        }
     },
-    {"Si", " 0.5 tau_i ni^2",
+    {"uE2", " ExB squared velocity",
         []( dg::x::DVec& result, Variables& v) {
-            dg::blas1::pointwiseDot(  v.p.tau, v.rhs.var(1), v.rhs.var(1), 0.,
-                    result);
-        }
-    },*/
-    {"U", " 0.5 u_E^2",
-        []( dg::x::DVec& result, Variables& v) {
-            dg::blas1::axpby( 0.5, v.rhs.uE2(), 0., result);
+            //dg::blas1::axpby( 1., v.rhs.uE2(), 0., result);
+            dg::blas1::copy(v.rhs.uE2(), result);
         }
     }
                 }
@@ -101,7 +66,7 @@ std::map<std::string, std::vector<Record>> diagnostics2d_list = {
     { "drift-global", {
     {"n", "Electron density in 2d",
         []( dg::x::DVec& result, Variables& v) {
-            dg::blas1::copy( v.rhs.var(), result);
+            dg::blas1::copy( v.rhs.phi(), result);
         }
     },/*
     {"rho", "Vorticity",
@@ -142,7 +107,7 @@ std::map<std::string, std::vector<Record>> diagnostics2d_list = {
     },*/
     {"U", " 0.5 n u_E^2",
         []( dg::x::DVec& result, Variables& v) {
-            dg::blas1::pointwiseDot( 0.5, v.rhs.var(),
+            dg::blas1::pointwiseDot( 0.5, v.rhs.phi(),
                      v.rhs.uE2(), 0., result);
         }
     }

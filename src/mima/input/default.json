@@ -4,16 +4,13 @@
         "n" :  3,
         "Nx" : 64,
         "Ny" : 64,
-        "lx"  : 100,
-        "ly"  : 100
+        "lx"  : 32,
+        "ly"  : 32
     },
     "init":
     {
-        "amplitude"  : 1,
-        "sigma"  : 5,
         "posX"  : 0.5,
-        "posY"  : 0.5,
-        "flr"  : "gamma_inv"
+        "posY"  : 0.5
     },
     "timestepper":
     {
@@ -24,18 +21,12 @@
     "bc" : ["DIR", "PER"],
     "elliptic":
     {
-        "stages" : 3,
-        "eps_pol"   : [1e-4, 1, 1],
-        "eps_gamma" : [1e-5, 1, 1],
-        "direction" : "centered"
+        "eps_gamma" : 1e-5
     },
     "model" :
     {
         "type": "local",
-        "boussinesq" : false,
-        "curvature" : 1.0,
-        "tau" : 0,
-        "nu" : 1e-8
+        "kappa" : -0.01
     },
     "output":
     {
@@ -43,8 +34,8 @@
        "tend" : 1000,
        "maxout" : 50,
        "n" : 3,
-       "Nx" : 80,
-       "Ny" : 80,
+       "Nx" : 64,
+       "Ny" : 64,
        "itstp" : 2
     }
 }

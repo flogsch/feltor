@@ -12,15 +12,13 @@ struct Parameters
     double lx, ly;
     dg::bc bcx, bcy;
 
-    std::vector<double> eps_pol, eps_gamma;
-    enum dg::direction pol_dir, diff_dir;
-    unsigned num_stages;
+    double eps_gamma;
+    enum dg::direction diff_dir;
 
     double amp, sigma, posX, posY;
 
     std::string model;
-    double tau, kappa, friction, nu;
-    bool boussinesq;
+    double kappa;
     Parameters() = default;
 
     Parameters( const dg::file::WrappedJsonValue& js) {
@@ -30,54 +28,24 @@ struct Parameters
         lx = js["grid"]["lx"].asDouble();
         ly = js["grid"]["ly"].asDouble();
 
-        num_stages = js["elliptic"]["stages"].asUInt();
-        eps_pol.resize(num_stages);
-        eps_gamma.resize(num_stages);
-        eps_pol[0] = js["elliptic"]["eps_pol"][0].asDouble();
-        eps_gamma[0] = js["elliptic"]["eps_gamma"][0].asDouble();
-        for( unsigned u=1;u<num_stages; u++)
-        {
-            eps_pol[u] = js["elliptic"][ "eps_pol"][u].asDouble();
-            eps_gamma[u] = js["elliptic"]["eps_gamma"][u].asDouble();
-            eps_pol[u]*=eps_pol[0];
-            eps_gamma[u]*=eps_gamma[0];
-        }
-        pol_dir =  dg::str2direction( js["elliptic"]["direction"].asString());
+        eps_gamma = js["elliptic"]["eps_gamma"].asDouble();
+        
         diff_dir = dg::centered;
-
-        amp = js["init"]["amplitude"].asDouble();
-        sigma = js["init"]["sigma"].asDouble();
+        sigma = (double(std::min(lx,ly))/16.);
+        amp = (double(std::min(lx,ly))/64.);
         posX = js["init"]["posX"].asDouble();
         posY = js["init"]["posY"].asDouble();
         bcx = dg::str2bc(js["bc"][0].asString());
         bcy = dg::str2bc(js["bc"][1].asString());
         model = js["model"].get("type", "global").asString();
-        boussinesq = false;
-        tau = friction = 0.;
-        nu = js["model"]["nu"].asDouble();
+        
         if( "local" == model)
         {
-            kappa = js["model"]["curvature"].asDouble();
-            tau = js["model"]["tau"].asDouble();
+            kappa = js["model"]["kappa"].asDouble();
         }
         else if( "global" == model)
         {
-            kappa = js["model"]["curvature"].asDouble();
-            tau = js["model"]["tau"].asDouble();
-            boussinesq = js["model"]["boussinesq"].asBool();
-        }
-        else if( "gravity-local" == model)
-        {
-            friction = js["model"]["friction"].asDouble();
-        }
-        else if( "gravity-global" == model)
-        {
-            friction = js["model"]["friction"].asDouble();
-        }
-        else if( "drift-global" == model)
-        {
-            boussinesq = js["model"]["boussinesq"].asBool();
-            kappa = js["model"]["curvature"].asDouble();
+            kappa = js["model"]["kappa"].asDouble();
         }
         else
             throw dg::Error( dg::Message(_ping_) << "Model : type `"<<model<<"` not recognized!\n");
@@ -86,13 +54,9 @@ struct Parameters
     void display( std::ostream& os = std::cout ) const
     {
         os << "Physical parameters are: \n"
-            <<"    Viscosity:       = "<<nu<<"\n"
-            <<"    Curvature_y:     = "<<kappa<<"\n"
-            <<"    Friction:        = "<<friction<<"\n"
-            <<"    Ion-temperature: = "<<tau<<"\n";
+            <<"    Advection_y:     = "<<kappa<<"\n";
         os << "Equation parameters are: \n"
-            <<"    "<<model<<"\n"
-            <<"    boussinesq  "<<boussinesq<<"\n";
+            <<"    "<<model<<"\n";
         os << "Boundary parameters are: \n"
             <<"    lx = "<<lx<<"\n"
             <<"    ly = "<<ly<<"\n";
@@ -109,8 +73,7 @@ struct Parameters
             << "    amplitude:    "<<amp<<"\n"
             << "    posX:         "<<posX<<"\n"
             << "    posY:         "<<posY<<"\n";
-        os << "Stopping for CG:         "<<eps_pol[0]<<"\n"
-            <<"Stopping for Gamma CG:   "<<eps_gamma[0]<<std::endl;
+        os  <<"Stopping for Gamma CG:   "<<eps_gamma<<std::endl;
     }
 };
 }//namespace mima
