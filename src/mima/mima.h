@@ -80,41 +80,24 @@ void Explicit<G, M, Container>::operator()( double t,
 {
     m_ncalls ++ ;
     
-   
     //need to compute m_phi from y here!!! (y = phi - lap phi)
-    //m_helmholtz.set_chi(1.);
     m_extra.extrapolate( t, m_phi);
     m_pcg.solve(m_helmholtz, m_phi, y,
                 m_helmholtz.precond(), m_helmholtz.weights(), m_p.eps_gamma[0]);
     m_extra.update( t, m_phi);
     //dg::blas2::symv(m_laplaceM, m_phi, m_chi);
-    dg::blas1::axpby( 1., m_phi, -1., y, m_chi); //chi = lap \phi
+    dg::blas1::axpby( -1., m_phi, 1., y, m_chi); //chi = lap \phi
     //compute derivatives
     dg::blas2::symv( m_centered[0], m_phi, m_dxphi);
     dg::blas2::symv( m_centered[1], m_phi, m_dyphi);
 
     dg::blas1::axpby(1., m_dyphi, 0., m_vx); //compute ExB velocities
     dg::blas1::axpby(-1., m_dxphi, 0., m_vy);
-    m_adv.upwind( 1., m_vx, m_vy, m_chi, 0., yp);
-
-    //dg::blas2::symv( 1., m_centered[1], m_chi, 0.,  m_vx); // compute "velocity of chi"
-    //dg::blas2::symv( -1., m_centered[0], m_chi, 0.,  m_vy);
-    //m_adv.upwind( -1., m_vx, m_vy, m_phi, 0., yp);
+    m_adv.upwind( -1., m_vx, m_vy, m_chi, 0., yp);
 
     //gradient terms
-    dg::blas1::axpby( -1., m_dyphi, 1., yp);
+    dg::blas1::axpby( -m_p.kappa, m_dyphi, 1., yp);
     
-    //dg::blas2::gemv( -m_p.nu, m_laplaceM, y, 1., yp);
-    
-    
-    
-    //y[0] = N_e - 1
-    //y[1] = N_i - 1 || y[1] = Omega
-
-
-    ///////////////////////////////////////////////////////////////////////
-    
-
 
     return;
 }

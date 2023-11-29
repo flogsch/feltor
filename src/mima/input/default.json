@@ -2,15 +2,15 @@
     "grid":
     {
         "n" :  3,
-        "Nx" : 80,
-        "Ny" : 80,
-        "lx"  : 20,
-        "ly"  : 20
+        "Nx" : 64,
+        "Ny" : 64,
+        "lx"  : 100,
+        "ly"  : 100
     },
     "init":
     {
-        "amplitude"  : 1.0,
-        "sigma"  : 10,
+        "amplitude"  : 1,
+        "sigma"  : 5,
         "posX"  : 0.5,
         "posY"  : 0.5,
         "flr"  : "gamma_inv"
@@ -18,30 +18,30 @@
     "timestepper":
     {
         "tableau" : "Bogacki-Shampine-4-2-3",
-        "rtol" : 1e-5,
-        "atol" : 1e-6
+        "rtol" : 1e-3,
+        "atol" : 1e-4
     },
     "bc" : ["DIR", "PER"],
     "elliptic":
     {
         "stages" : 3,
-        "eps_pol"   : [1e-6, 1, 1],
-        "eps_gamma" : [1e-7, 1, 1],
+        "eps_pol"   : [1e-4, 1, 1],
+        "eps_gamma" : [1e-5, 1, 1],
         "direction" : "centered"
     },
     "model" :
     {
         "type": "local",
         "boussinesq" : false,
-        "curvature" : 0.00015,
+        "curvature" : 1.0,
         "tau" : 0,
         "nu" : 1e-8
     },
     "output":
     {
-       "type" : "netcdf",
-       "tend" : 10000,
-       "maxout" : 100,
+       "type" : "glfw",
+       "tend" : 1000,
+       "maxout" : 50,
        "n" : 3,
        "Nx" : 80,
        "Ny" : 80,
