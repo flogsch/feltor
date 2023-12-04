@@ -18,7 +18,7 @@ struct Parameters
     double amp, sigma, posX, posY;
 
     std::string model;
-    double kappa;
+    double Ln;
     Parameters() = default;
 
     Parameters( const dg::file::WrappedJsonValue& js) {
@@ -31,21 +31,22 @@ struct Parameters
         eps_gamma = js["elliptic"]["eps_gamma"].asDouble();
         
         diff_dir = dg::centered;
-        sigma = (double(std::min(lx,ly))/16.);
-        amp = (double(std::min(lx,ly))/64.);
+        sigma = (double(std::min(lx,ly))/32.);
+        amp = js["init"]["amp"].asDouble();
+        //amp = (double(std::min(lx,ly))/320.);
         posX = js["init"]["posX"].asDouble();
         posY = js["init"]["posY"].asDouble();
         bcx = dg::str2bc(js["bc"][0].asString());
         bcy = dg::str2bc(js["bc"][1].asString());
-        model = js["model"].get("type", "global").asString();
+        model = js["model"].get("type", "standardCHM").asString();
         
-        if( "local" == model)
+        if( "standardCHM" == model)
         {
-            kappa = js["model"]["kappa"].asDouble();
+            Ln = js["model"]["Ln"].asDouble();
         }
         else if( "global" == model)
         {
-            kappa = js["model"]["kappa"].asDouble();
+            Ln = js["model"]["Ln"].asDouble();
         }
         else
             throw dg::Error( dg::Message(_ping_) << "Model : type `"<<model<<"` not recognized!\n");
@@ -54,7 +55,7 @@ struct Parameters
     void display( std::ostream& os = std::cout ) const
     {
         os << "Physical parameters are: \n"
-            <<"    Advection_y:     = "<<kappa<<"\n";
+            <<"    Background gradient length:     = "<<Ln<<"\n";
         os << "Equation parameters are: \n"
             <<"    "<<model<<"\n";
         os << "Boundary parameters are: \n"

@@ -10,7 +10,8 @@
     "init":
     {
         "posX"  : 0.5,
-        "posY"  : 0.5
+        "posY"  : 0.5,
+        "amp"   : 5.0
     },
     "timestepper":
     {
@@ -25,8 +26,8 @@
     },
     "model" :
     {
-        "type": "local",
-        "kappa" : -0.01
+        "type": "standardCHM",
+        "Ln" : 20.0
     },
     "output":
     {
