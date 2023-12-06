@@ -67,27 +67,41 @@ void Explicit<G, M, Container>::operator()( double t,
         const Container & y, Container & yp)
 {
     m_ncalls ++ ;
-    
-    //need to compute m_phi from y here!!! (y = phi - lap phi)
-    m_extra.extrapolate( t, m_phi);
-    m_pcg.solve(m_helmholtz, m_phi, y,
-                m_helmholtz.precond(), m_helmholtz.weights(), m_p.eps_gamma);
-    m_extra.update( t, m_phi);
-    //dg::blas2::symv(m_laplaceM, m_phi, m_chi); //alternative variante für chi
-    dg::blas1::axpby( -1., m_phi, 1., y, m_chi); //chi = - lap \phi
-    //compute derivatives
-    dg::blas2::symv( m_centered[0], m_phi, m_dxphi);
-    dg::blas2::symv( m_centered[1], m_phi, m_dyphi);
+    if (p.model == "standardCHM"){
+        //need to compute m_phi from y here!!! (y = phi - lap phi)
+        m_extra.extrapolate( t, m_phi);
+        m_pcg.solve(m_helmholtz, m_phi, y,
+                    m_helmholtz.precond(), m_helmholtz.weights(), m_p.eps_gamma);
+        m_extra.update( t, m_phi);
+        //dg::blas2::symv(m_laplaceM, m_phi, m_chi); //alternative variante für chi
+        dg::blas1::axpby( -1., m_phi, 1., y, m_chi); //chi = - lap \phi
+        //compute derivatives
+        dg::blas2::symv( m_centered[0], m_phi, m_dxphi);
+        dg::blas2::symv( m_centered[1], m_phi, m_dyphi);
 
-    dg::blas1::axpby(-1., m_dyphi, 0., m_vx); //compute ExB velocities v = uE = (-dy phi, dx phi)
-    dg::blas1::axpby(1., m_dxphi, 0., m_vy);
-    m_adv.upwind( -1., m_vx, m_vy, m_chi, 0., yp); // yp = uE.nabla(lap phi)
+        dg::blas1::axpby(-1., m_dyphi, 0., m_vx); //compute ExB velocities v = uE = (-dy phi, dx phi)
+        dg::blas1::axpby(1., m_dxphi, 0., m_vy);
+        m_adv.upwind( -1., m_vx, m_vy, m_chi, 0., yp); // yp = uE.nabla(lap phi)
 
-    //gradient terms
-    dg::blas1::axpby( -1./m_p.Ln, m_dyphi, 1., yp); //Ln is background gradient length in units of rho_s
-    
-    //compute uE2
-    m_laplaceM.variation(m_phi, m_uE2);
+        //gradient terms
+        dg::blas1::axpby( -1./m_p.Ln, m_dyphi, 1., yp); //Ln is background gradient length in units of rho_s
+        
+        //compute uE2
+        m_laplaceM.variation(m_phi, m_uE2);
+    }
+    else if (p.model == "boussinesq"){
+        ///############### invert y here...
+
+
+        dg::blas1::axpby( -1., m_phi, 1., y, m_chi); //chi = - lap \phi (=v)
+        //compute derivatives
+        dg::blas2::symv( m_centered[0], m_phi, m_dxphi);
+        dg::blas2::symv( m_centered[1], m_phi, m_dyphi);
+        dg::blas1::axpby(-1., m_dyphi, 0., m_vx); //compute ExB velocities v = uE = (-dy phi, dx phi)
+        dg::blas1::axpby(1., m_dxphi, 0., m_vy);
+        m_laplaceM.variation(m_phi, m_uE2); //compute uE2
+        
+    }
 
     return;
 }
