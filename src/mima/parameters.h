@@ -44,7 +44,7 @@ struct Parameters
         {
             Ln = js["model"]["Ln"].asDouble();
         }
-        else if( "global" == model)
+        else if( "boussinesq" == model)
         {
             Ln = js["model"]["Ln"].asDouble();
         }
