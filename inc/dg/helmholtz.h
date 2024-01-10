@@ -120,6 +120,126 @@ struct GeneralHelmholtz
     Container m_chi;
 };
 
+/**
+ * @brief A Helmholtz-type operator \f$ (\chi . -ln(1-\alpha F .)) \f$
+ *
+ * @ingroup matrixoperators
+ *
+ * where \f$ \chi\f$ is a vector and \f$\alpha\f$ a scalar and \f$F\f$ is an operator.
+ * @attention If \f$ F\f$ is the \c Elliptic operator then the Laplacian in
+ * this formula becomes positive as opposed to the negative sign in the \c Elliptic
+ * operator
+ *
+ * Can be used by the \c dg::PCG class. The following example shows how the class can be used to act as a \c Helmholtz2 operator:
+ @snippet helmholtzg2_b.cu doxygen
+ * @copydoc hide_geometry_matrix_container
+ * @note The intention is for Matrix to be one of the Elliptic classes with
+ * the \c weights() and \c precond() methods defined. If Matrix is to be an
+ * arbitrary functor then it is more convenient to simply directly use a lambda
+ * function to achieve the computation of \f$ y = \chi x -ln(1-\alpha F x)\f$
+ */
+template<class Matrix, class Container>
+struct GeneralHelmholtzLN
+{
+    using matrix_type = Matrix;
+    using container_type = Container;
+    using value_type = get_value_type<Container>;
+
+    ///@brief empty object ( no memory allocation)
+    GeneralHelmholtzLN() = default;
+
+    /**
+     * @brief Construct from given Matrix object
+     * @param alpha Scalar in the above formula
+     * @param matrix an existing elliptic operator
+     */
+    GeneralHelmholtzLN( value_type alpha, Matrix matrix):
+        m_alpha(alpha), m_matrix(matrix), m_chi( m_matrix.weights())
+    {
+        dg::blas1::copy( 1., m_chi);
+    }
+
+    ///@copydoc hide_construct
+    template<class ...Params>
+    void construct( Params&& ...ps)
+    {
+        //construct and swap
+        *this = GeneralHelmholtzLN( std::forward<Params>( ps)...);
+    }
+
+    ///Call weights() of Matrix class
+    const Container& weights()const {return m_matrix.weights();}
+    ///Call precond() of Matrix class
+    const Container& precond()const {return m_matrix.precond();}
+
+    /**
+     * @brief Compute \f[ y = \chi x - ln(1 - \alpha M x) \f]
+     *
+     * @param x lhs
+     * @param y rhs contains solution
+     * @tparam ContainerTypes must be usable with \c Container_type in \ref dispatch
+     */
+    template<class ContainerType0, class ContainerType1>
+    void symv( const ContainerType0& x, ContainerType1& y)
+    {
+
+
+        
+        if( m_alpha != 0){
+            blas2::symv( m_matrix, x, y); //y = - alpha lap phi
+            blas1::axpby(0., x, -m_alpha, y);
+            dg::blas1::transform( y, m_tmp, dg::PLUS<double>(1.)); //tmp=1 - alpha lap phi
+            dg::blas1::transform( m_tmp, y, dg::LN<double>()); // y = ln(temp)
+            dg::blas1::pointwiseDot( 1., m_chi, x, -1., y); // y = chi x - ln(1 - alpha lap phi)
+        }
+        else {
+            dg::blas1::pointwiseDot( 1., m_chi, x, 0., y);
+        }
+
+    }
+
+    ///Write access to Matrix object
+    Matrix& matrix(){
+        return m_matrix;
+    }
+    ///Read access to Matrix object
+    const Matrix& matrix()const{
+        return m_matrix;
+    }
+    /**
+     * @brief Change alpha
+     *
+     * @return reference to alpha
+     */
+    value_type& alpha( ){  return m_alpha;}
+    /**
+     * @brief Access alpha
+     *
+     * @return alpha
+     */
+    value_type alpha( ) const  {return m_alpha;}
+    /**
+     * @brief Set Chi in the above formula
+     *
+     * @param chi new Container
+     * @tparam ContainerTypes must be usable with \c Container in \ref dispatch
+     */
+    template<class ContainerType0>
+    void set_chi( const ContainerType0& chi) {
+        dg::blas1::copy( chi, m_chi);
+    }
+    /**
+     * @brief Access chi
+     * @return chi
+     */
+    const Container& chi() const{return m_chi;}
+    private:
+    value_type m_alpha;
+    Matrix m_matrix;
+    Container m_chi;
+    Container m_tmp;
+};
+
 ///@brief a 2d Helmholtz opereator \f$ (\chi - \alpha F)\f$ with \f$ F = -\Delta\f$
 ///@copydetails GeneralHelmholtz
 ///@ingroup matrixoperators
@@ -140,6 +260,11 @@ using Helmholtz2d = GeneralHelmholtz<dg::Elliptic2d<Geometry,Matrix,Container>, 
 ///@ingroup matrixoperators
 template<class Geometry, class Matrix, class Container>
 using Helmholtz3d = GeneralHelmholtz<dg::Elliptic3d<Geometry,Matrix,Container>, Container>;
+///@brief a 2d logarithmic Helmholtz operator \f$ (\chi . - ln(1-\alpha F .))\f$ with \f$ F = -\Delta\f$
+///@copydetails GeneralHelmholtzLN
+///@ingroup matrixoperators
+template<class Geometry, class Matrix, class Container>
+using HelmholtzLN = GeneralHelmholtzLN<dg::Elliptic2d<Geometry,Matrix,Container>, Container>;
 
 /**
  * @brief DEPRECATED, Matrix class that represents a more general Helmholtz-type operator
