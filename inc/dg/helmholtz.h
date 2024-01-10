@@ -73,10 +73,22 @@ struct GeneralHelmholtz
     template<class ContainerType0, class ContainerType1>
     void symv( const ContainerType0& x, ContainerType1& y)
     {
-        if( m_alpha != 0)
+       /* if( m_alpha != 0)
             blas2::symv( m_matrix, x, y);
         dg::blas1::pointwiseDot( 1., m_chi, x, -m_alpha, y);
 
+*/
+        
+        if( m_alpha != 0){
+            blas2::symv( m_matrix, x, y); //y = - alpha lap phi
+            blas1::axpby(0., x, -m_alpha, y);
+            dg::blas1::transform( y, m_tmp, dg::PLUS<double>(1.)); //tmp=1 - alpha lap phi
+            dg::blas1::transform( m_tmp, y, dg::LN<double>()); // y = ln(temp)
+            dg::blas1::pointwiseDot( 1., m_chi, x, -1., y); // y = chi x - ln(1 - alpha lap phi)
+        }
+        else {
+            dg::blas1::pointwiseDot( 1., m_chi, x, 0., y);
+        }
     }
 
     ///Write access to Matrix object
@@ -118,6 +130,7 @@ struct GeneralHelmholtz
     value_type m_alpha;
     Matrix m_matrix;
     Container m_chi;
+    Container m_tmp;
 };
 
 ///@brief a 2d Helmholtz opereator \f$ (\chi - \alpha F)\f$ with \f$ F = -\Delta\f$

@@ -91,7 +91,10 @@ void Explicit<G, M, Container>::operator()( double t,
     }
     else if (m_p.model == "boussinesq"){
         ///############### invert y here...
-
+        m_extra.extrapolate( t, m_phi);
+        m_pcg.solve(m_helmholtz, m_phi, y,
+                    m_helmholtz.precond(), m_helmholtz.weights(), m_p.eps_gamma);
+        m_extra.update( t, m_phi);
 
         dg::blas1::axpby( -1., m_phi, 1., y, m_chi); //chi = - lap \phi (=v)
         //compute derivatives
