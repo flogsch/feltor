@@ -39,7 +39,6 @@ struct Explicit
     dg::PCG<Container> m_pcg;
     dg::Extrapolation<Container> m_extra;
     dg::Helmholtz<Geometry, Matrix, Container> m_helmholtz;
-    dg::HelmholtzLN<Geometry, Matrix, Container> m_helmholtzLN;
 
     Parameters m_p;
 
@@ -56,7 +55,6 @@ Explicit< Geometry, M, Container>::Explicit( const Geometry& grid, const Paramet
     m_pcg( m_phi, grid.size()),
     m_extra( 2, m_phi),
     m_helmholtz( -1., {grid, dg::centered}),
-    m_helmholtzLN( -1., {grid, dg::centered}),
     m_p(p)   
 {
     m_centered = {dg::create::dx( grid, m_p.bcx),
@@ -93,10 +91,7 @@ void Explicit<G, M, Container>::operator()( double t,
     }
     else if (m_p.model == "boussinesq"){
         ///############### invert y here...
-        m_extra.extrapolate( t, m_phi);
-        m_pcg.solve(m_helmholtzLN, m_phi, y,
-                    m_helmholtzLN.precond(), m_helmholtzLN.weights(), m_p.eps_gamma);
-        m_extra.update( t, m_phi);
+
 
         dg::blas1::axpby( -1., m_phi, 1., y, m_chi); //chi = - lap \phi (=v)
         //compute derivatives
