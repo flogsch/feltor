@@ -82,8 +82,9 @@ struct GeneralHelmholtz
         if( m_alpha != 0){
             blas2::symv( m_matrix, x, y); //y = - alpha lap phi
             blas1::axpby(0., x, -m_alpha, y);
-            dg::blas1::transform( y, m_tmp, dg::PLUS<double>(1.)); //tmp=1 - alpha lap phi
-            dg::blas1::transform( m_tmp, y, dg::LN<double>()); // y = ln(temp)
+            dg::blas1::transform( y, y, dg::PLUS<double>(1.)); //tmp=1 - alpha lap phi
+            dg::blas1::transform( y, y, dg::LN<double>()); // y = ln(temp)
+            dg::blas1::copy( 0, y );
             dg::blas1::pointwiseDot( 1., m_chi, x, -1., y); // y = chi x - ln(1 - alpha lap phi)
         }
         else {

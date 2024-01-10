@@ -32,8 +32,8 @@
     "output":
     {
        "type" : "glfw",
-       "tend" : 1000,
-       "maxout" : 50,
+       "tend" : 1,
+       "maxout" : 500,
        "n" : 3,
        "Nx" : 64,
        "Ny" : 64,
