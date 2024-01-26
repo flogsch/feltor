@@ -95,25 +95,28 @@ void Explicit<G, M, Container>::operator()( double t,
         m_pcg.solve(m_helmholtz, m_phi, y,
                     m_helmholtz.precond(), m_helmholtz.weights(), m_p.eps_gamma);
         m_extra.update( t, m_phi);
+        //dg::blas2::symv( m_laplaceM, m_phi, m_chi);
+        dg::blas1::axpby( 1., m_phi, -1., y, m_chi); //chi = lap \phi (=v)
 
-        dg::blas1::axpby( -1., m_phi, 1., y, m_chi); //chi = - lap \phi (=v)
         //compute derivatives
         dg::blas2::symv( m_centered[0], m_phi, m_dxphi);
         dg::blas2::symv( m_centered[1], m_phi, m_dyphi);
         dg::blas1::axpby(-1., m_dyphi, 0., m_uex); //compute ExB velocities v = uE = (-dy phi, dx phi)
         dg::blas1::axpby(1., m_dxphi, 0., m_uey);
         m_laplaceM.variation(m_phi, m_uE2); //compute uE2
-        dg::blas2::symv( 1., m_centered[1], m_uE2, 0., m_ustx); //compute advection velocities Ust
-        dg::blas2::symv(-1., m_centered[0], m_uE2, 0., m_usty);
+        dg::blas2::symv( 0.5, m_centered[1], m_uE2, 0., m_ustx); //compute advection velocities Ust
+        dg::blas2::symv(-0.5, m_centered[0], m_uE2, 0., m_usty);
 
         //now start combining RHS terms:
-        m_adv.upwind( -0.5, m_ustx, m_usty, m_phi, 0., yp);
-        dg::blas1::axpby(0.5/m_p.Ln, m_ustx, 1., yp);
+        m_adv.upwind( -1, m_ustx, m_usty, m_phi, 0., yp);
+        dg::blas1::axpby(1./m_p.Ln, m_ustx, 1., yp);
 
-        dg::blas1::transform( m_chi, m_nomi, dg::PLUS<double>(-1.)); //nomi=lap phi - 1
-        dg::blas1::pointwiseDivide( -1., yp, m_nomi, 0., yp); //yp = yp/(1-lap phi)
+        dg::blas1::transform( m_chi, m_nomi, dg::PLUS<double>(1.)); //nomi=1 - lap phi
+        dg::blas1::pointwiseDivide( 1., yp, m_nomi, 0., yp); //yp = yp/(1-lap phi)
         
         m_adv.upwind( -1., m_uex, m_uey, y, 1., yp);
+        //m_adv.upwind( -1., m_uex, m_uey, m_phi, 1., yp);
+        //m_adv.upwind( -1., m_uex, m_uey, m_chi, 1., yp);
         dg::blas1::axpby( -1./m_p.Ln, m_dyphi, 1., yp);
 
     }
