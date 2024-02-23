@@ -187,7 +187,8 @@ struct GeneralHelmholtzLN
     const Container& precond()const {return m_matrix.precond();}
 
     /**
-     * @brief Compute \f[ y = \chi x - ln(1 - \alpha M x) \f]
+     * @brief Compute \f[ y = \chi x + ln(1 - \alpha M x) \f] Compute \f[ y = \exp^(\chi x) * (1 - \alpha M x) \f]
+     * 
      *
      * @param x lhs
      * @param y rhs contains solution
@@ -196,13 +197,22 @@ struct GeneralHelmholtzLN
     template<class ContainerType0, class ContainerType1>
     void symv( const ContainerType0& x, ContainerType1& y)
     {
+        //ContainerType1 temp;
         if( m_alpha != 0){
-            blas2::symv( m_matrix, x, y); //y = - alpha lap phi
-            blas1::axpby(0., x, -m_alpha, y);
-            dg::blas1::transform( y, y, dg::PLUS<double>(1.)); //tmp=1 - alpha lap phi
-            dg::blas1::transform( y, y, dg::LN<double>()); // y = ln(temp)
+            std::cout <<"test0\n";
+            dg::blas1::pointwiseDot(m_chi, x, y); //y = chi*x
+            std::cout <<"test1\n";
+            dg::blas1::transform( x, y, dg::EXP<double>()); // y = exp(chi*x)
+            std::cout <<"test2\n";
+            blas2::symv( m_matrix, x, m_tmp); //tmp = - alpha lap phi ----------------here is segmentation fault due to m_tmp
+            std::cout <<"test3\n";
+            blas1::axpby(0., x, -m_alpha, m_tmp);
+            std::cout <<"test4\n";
+            dg::blas1::transform(m_tmp, m_tmp, dg::PLUS<double>(1.)); //tmp=1 - alpha lap phi
+            std::cout <<"test5\n";
+            
             dg::blas1::copy( 0, y );
-            dg::blas1::pointwiseDot( 1., m_chi, x, 1., y); // y = chi x + ln(1 - alpha lap phi)
+            dg::blas1::pointwiseDot( 1., y, m_tmp, 0., y); // y = exp(chi x) * tmp
         }
         else {
             dg::blas1::pointwiseDot( 1., m_chi, x, 0., y);

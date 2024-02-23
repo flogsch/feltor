@@ -32,7 +32,7 @@ int main()
     //std::cin >> n>> Nx >> Ny >> Nz;
     dg::Grid2d grid( 0, 2.*M_PI, 0, 2.*M_PI, n, Nx, Ny, dg::DIR, dg::PER);
     const dg::DVec w2d = dg::create::weights( grid);
-    const dg::DVec rho = dg::evaluate( rhs, grid);
+    dg::DVec rho = dg::evaluate( rhs, grid);
     const dg::DVec sol = dg::evaluate( lhs, grid);
     dg::DVec x(rho.size(), 0.);
 
@@ -40,6 +40,7 @@ int main()
 
     ////std::cout << "FIRST METHOD:\n";
     dg::PCG< dg::DVec > pcg(x, x.size());
+    dg::blas1::transform( rho, rho, dg::EXP<double>());
     unsigned number = pcg.solve( gamma1inv, x, rho, 1., w2d, eps);
 
     ////std::cout << "SECOND METHOD:\n";
