@@ -135,7 +135,7 @@ struct GeneralHelmholtz
 };
 
 /**
- * @brief A Helmholtz-type operator \f$ (\chi . -ln(1-\alpha F .)) \f$
+ * @brief A Helmholtz-type operator \f$ (\chi . +ln(1-\alpha F .)) \f$
  *
  * @ingroup matrixoperators
  *
@@ -150,7 +150,7 @@ struct GeneralHelmholtz
  * @note The intention is for Matrix to be one of the Elliptic classes with
  * the \c weights() and \c precond() methods defined. If Matrix is to be an
  * arbitrary functor then it is more convenient to simply directly use a lambda
- * function to achieve the computation of \f$ y = \chi x -ln(1-\alpha F x)\f$
+ * function to achieve the computation of \f$ y = \chi x +ln(1-\alpha F x)\f$
  */
 template<class Matrix, class Container>
 struct GeneralHelmholtzLN
@@ -202,7 +202,7 @@ struct GeneralHelmholtzLN
             dg::blas1::transform( y, y, dg::PLUS<double>(1.)); //tmp=1 - alpha lap phi
             dg::blas1::transform( y, y, dg::LN<double>()); // y = ln(temp)
             dg::blas1::copy( 0, y );
-            dg::blas1::pointwiseDot( 1., m_chi, x, 1., y); // y = chi x - ln(1 - alpha lap phi)
+            dg::blas1::pointwiseDot( 1., m_chi, x, 1., y); // y = chi x + ln(1 - alpha lap phi)
         }
         else {
             dg::blas1::pointwiseDot( 1., m_chi, x, 0., y);
