@@ -9,10 +9,10 @@
 #include "pcg.h"
 #include "dg/algorithm.h"
 
-const double eps = 1e-7;
+const double eps = 1e-3;
 const double alpha = 1.;
 double lhs( double x, double y){ return 0.25*sin(x)*sin(y);}
-double rhs( double x, double y){ return 0.25*sin(x)*sin(y) + log(1.+0.5*alpha*sin(x)*sin(y));}
+double rhs( double x, double y){ return  exp(0.25*sin(x)*sin(y))*(1.+ 0.5*sin(x)*sin(y)) ;}
 const double R_0 = 1000;
 const double lx = 2.*M_PI;
 const double ly = 2.*M_PI;
@@ -41,18 +41,25 @@ int main()
 
     std::cout << "FIRST METHOD:\n";
     dg::PCG< dg::DVec > pcg(x, x.size());
-    unsigned number = pcg.solve( helmln, x, rho, 1., w2d, eps);
+    unsigned number = 1;//pcg.solve( helmln, x, rho, 1., w2d, eps);
 
     std::cout << "SECOND METHOD:\n";
     dg::ChebyshevIteration< dg::DVec > cheby(x);
     dg::DVec x_(rho.size(), 0.);
-    cheby.solve( helmln, x_, rho, 0., 1., 5000, true);
+    //cheby.solve( helmln, x_, rho, 0., 1., 50, true);
 
     std::cout << "THIRD METHOD:\n";
     dg::LGMRES<dg::DVec> lgmres(x, 30, 3, 10);
     dg::DVec x__(rho.size(), 0.);
-    lgmres.solve(helmln, x__, rho, 1., w2d, eps, 1.);
-    for (double i: x__ ){
+    //lgmres.solve(helmln, x__, rho, 1., w2d, eps, 1.);
+
+    std::cout << "FOURTH METHOD:\n";
+    dg::AndersonAcceleration<dg::DVec> anderson(x,0);
+    dg::DVec x___(rho.size(), 10.);
+    anderson.solve(helmln, x___, rho,  w2d, eps, eps, 100, 1e-3, 10, false);
+
+
+    for (double i: x___ ){
         std::cout << i << " ";
     }
     //Evaluation
