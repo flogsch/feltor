@@ -11,8 +11,8 @@
 
 const double eps = 1e-3;
 const double alpha = 1.;
-double lhs( double x, double y){ return 0.25*sin(x)*sin(y);}
-double rhs( double x, double y){ return  exp(0.25*sin(x)*sin(y))*(1.+ 0.5*sin(x)*sin(y)) ;}
+double lhs( double x, double y){ return 0.25*(2. - cosh((x-M_PI)*(1./M_PI*acosh(2.))));}
+double rhs( double x, double y){ return  lhs(x,y) + log(1+lhs(x,y)) ;}
 const double R_0 = 1000;
 const double lx = 2.*M_PI;
 const double ly = 2.*M_PI;
@@ -41,31 +41,32 @@ int main()
 
     std::cout << "FIRST METHOD:\n";
     dg::PCG< dg::DVec > pcg(x, x.size());
-    unsigned number = 1;//pcg.solve( helmln, x, rho, 1., w2d, eps);
+    unsigned number = pcg.solve( helmln, x, rho, 1., w2d, eps);
 
     std::cout << "SECOND METHOD:\n";
     dg::ChebyshevIteration< dg::DVec > cheby(x);
     dg::DVec x_(rho.size(), 0.);
-    //cheby.solve( helmln, x_, rho, 0., 1., 50, true);
+    cheby.solve( helmln, x_, rho, 0., 1., 50, true);
 
     std::cout << "THIRD METHOD:\n";
     dg::LGMRES<dg::DVec> lgmres(x, 30, 3, 10);
     dg::DVec x__(rho.size(), 0.);
-    //lgmres.solve(helmln, x__, rho, 1., w2d, eps, 1.);
+    lgmres.solve(helmln, x__, rho, 1., w2d, eps, 1.);
 
-    std::cout << "FOURTH METHOD:\n";
+   /* std::cout << "FOURTH METHOD:\n";
     dg::AndersonAcceleration<dg::DVec> anderson(x,0);
     dg::DVec x___(rho.size(), 10.);
-    anderson.solve(helmln, x___, rho,  w2d, eps, eps, 100, 1e-3, 10, false);
+    anderson.solve(helmln, x___, rho,  w2d, eps, eps, 100, 1e-3, 10, false);*/
 
 
-    for (double i: x___ ){
+    for (double i: sol ){
         std::cout << i << " ";
     }
     //Evaluation
     dg::blas1::axpby( 1., sol, -1., x);
     dg::blas1::axpby( 1., sol, -1., x_);
     dg::blas1::axpby( 1., sol, -1., x__);
+    //dg::blas1::axpby( 1., sol, -1., x___);
 
     std::cout << "number of iterations:  "<<number<<std::endl;
     std::cout << "ALL METHODS SHOULD DO THE SAME!\n";
@@ -76,6 +77,8 @@ int main()
     std::cout << "error2 " << res.d<<"\t"<<res.i<<std::endl;
     res.d = sqrt( dg::blas2::dot( w2d, x__));
     std::cout << "error3 " << res.d<<"\t"<<res.i<<std::endl;
+    //res.d = sqrt( dg::blas2::dot( w2d, x___));
+    //std::cout << "error4 " << res.d<<"\t"<<res.i<<std::endl;
 
     /*
     std::cout << "Test 3d cylincdrical norm:\n";

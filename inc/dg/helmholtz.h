@@ -198,20 +198,12 @@ struct GeneralHelmholtzLN
     {
         ContainerType1 m_temp(y);
         if( m_alpha != 0){
-            //std::cout <<"test0\n";
-            dg::blas1::pointwiseDot(m_chi, x, y); //y = chi*x
-            //std::cout <<"test1\n";
-            dg::blas1::transform( x, y, dg::EXP<double>()); // y = exp(chi*x)
-            //std::cout <<"test2\n";
-            blas2::symv( m_matrix, x, m_temp); //temp = - alpha lap phi ----------------here is segmentation fault due to m_tmp
-            //std::cout <<"test3\n";
-            blas1::axpby(0., x, -m_alpha, m_temp);
-            //std::cout <<"test4\n";
-            dg::blas1::transform(m_temp, m_temp, dg::PLUS<double>(1.)); //temp=1 - alpha lap phi
-            //std::cout <<"test5\n";
-            
+            blas2::symv( m_matrix, x, y); //y = - alpha lap phi
+            blas1::axpby(0., x, -m_alpha, y);
+            dg::blas1::transform( y, y, dg::PLUS<double>(1.)); //tmp=1 - alpha lap phi
+            dg::blas1::transform( y, y, dg::LN<double>()); // y = ln(temp)
             dg::blas1::copy( 0, y );
-            dg::blas1::pointwiseDot( 1., y, m_temp, 0., y); // y = exp(chi x) * temp
+            dg::blas1::pointwiseDot( 1., m_chi, x, 1., y); // y = chi x + ln(1 - alpha lap phi)
         }
         else {
             dg::blas1::pointwiseDot( 1., m_chi, x, 0., y);
