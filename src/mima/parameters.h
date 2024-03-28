@@ -48,6 +48,10 @@ struct Parameters
         {
             Ln = js["model"]["Ln"].asDouble();
         }
+        else if( "boussinesq2" == model)
+        {
+            Ln = js["model"]["Ln"].asDouble();
+        }
         else
             throw dg::Error( dg::Message(_ping_) << "Model : type `"<<model<<"` not recognized!\n");
     }
