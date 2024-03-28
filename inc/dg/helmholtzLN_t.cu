@@ -37,12 +37,27 @@ int main()
     const dg::DVec sol = dg::evaluate( lhs, grid);
     dg::DVec x(rho.size(), 0.);
 
-    dg::HelmholtzLN<dg::CartesianGrid2d, dg::DMatrix, dg::DVec > helmln( alpha, {grid});
+    dg::Elliptic<dg::CartesianGrid2d, dg::DMatrix, dg::DVec> m_laplaceM( grid,  dg::centered);
+    
+    dg::HelmholtzLN<dg::CartesianGrid2d, dg::DMatrix, dg::DVec > helmln( alpha, {grid, dg::centered});
+
+    auto op = [&lap = m_laplaceM]( const auto& x, auto& y) mutable
+    {
+        //dg::blas2::symv( lap, x, y);
+        //dg::blas1::transform( x, tmp, dg::EXP<double>());
+        //dg::blas1::axpby( 1., tmp, 1., y);
+
+            dg::blas2::symv( -1., lap, x, 0., y);
+            dg::blas1::transform( y, y, dg::PLUS<double>(1.));
+            dg::blas1::transform( y, y, dg::LN<double>()); // y = ln(temp)
+            dg::blas1::copy( 0, y );
+            dg::blas1::axpby( 1., x, 1., y); // y =  x + ln(1 -  lap phi)
+    };
 
     std::cout << "FIRST METHOD:\n";
     dg::PCG< dg::DVec > pcg(x, x.size());
-    unsigned number = pcg.solve( helmln, x, rho, 1., w2d, eps);
-
+    unsigned number = pcg.solve( op, x, rho, 1., w2d, eps);
+/*
     std::cout << "SECOND METHOD:\n";
     dg::ChebyshevIteration< dg::DVec > cheby(x);
     dg::DVec x_(rho.size(), 0.);
@@ -53,19 +68,19 @@ int main()
     dg::DVec x__(rho.size(), 0.);
     lgmres.solve(helmln, x__, rho, 1., w2d, eps, 1.);
 
-   /* std::cout << "FOURTH METHOD:\n";
+    std::cout << "FOURTH METHOD:\n";
     dg::AndersonAcceleration<dg::DVec> anderson(x,0);
     dg::DVec x___(rho.size(), 10.);
     anderson.solve(helmln, x___, rho,  w2d, eps, eps, 100, 1e-3, 10, false);*/
 
 
-    for (double i: sol ){
+    for (double i: x_ ){
         std::cout << i << " ";
     }
     //Evaluation
     dg::blas1::axpby( 1., sol, -1., x);
-    dg::blas1::axpby( 1., sol, -1., x_);
-    dg::blas1::axpby( 1., sol, -1., x__);
+    //dg::blas1::axpby( 1., sol, -1., x_);
+    //dg::blas1::axpby( 1., sol, -1., x__);
     //dg::blas1::axpby( 1., sol, -1., x___);
 
     std::cout << "number of iterations:  "<<number<<std::endl;
@@ -73,11 +88,11 @@ int main()
     dg::exblas::udouble res;
     res.d = sqrt( dg::blas2::dot( w2d, x));
     std::cout << "error1 " << res.d<<"\t"<<res.i<<std::endl;
-    res.d = sqrt( dg::blas2::dot( w2d, x_));
+    /*    res.d = sqrt( dg::blas2::dot( w2d, x_));
     std::cout << "error2 " << res.d<<"\t"<<res.i<<std::endl;
     res.d = sqrt( dg::blas2::dot( w2d, x__));
     std::cout << "error3 " << res.d<<"\t"<<res.i<<std::endl;
-    //res.d = sqrt( dg::blas2::dot( w2d, x___));
+    */     //res.d = sqrt( dg::blas2::dot( w2d, x___));
     //std::cout << "error4 " << res.d<<"\t"<<res.i<<std::endl;
 
     /*

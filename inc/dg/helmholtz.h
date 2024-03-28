@@ -198,8 +198,8 @@ struct GeneralHelmholtzLN
     {
         ContainerType1 m_temp(y);
         if( m_alpha != 0){
-            blas2::symv( m_matrix, x, y); //y = - alpha lap phi
-            blas1::axpby(0., x, -m_alpha, y);
+            dg::blas2::symv( m_matrix, x, y); //y = - alpha lap phi
+            dg::blas1::axpby(0., x, -m_alpha, y);
             dg::blas1::transform( y, y, dg::PLUS<double>(1.)); //tmp=1 - alpha lap phi
             dg::blas1::transform( y, y, dg::LN<double>()); // y = ln(temp)
             dg::blas1::copy( 0, y );
