@@ -28,7 +28,7 @@ struct Explicit
     
   private:
     //use chi and omega as helpers to compute square velocity in uE2
-    Container m_chi, m_uE2;
+    Container m_chi, m_uE2, m_invgamma1phi, m_invgamma0ni;
     Container m_phi, m_dxphi, m_dyphi, m_uex, m_uey, m_ustx, m_usty, m_nomi;
 
     //matrices and solvers
@@ -38,7 +38,11 @@ struct Explicit
     dg::Advection< Geometry, Matrix, Container> m_adv;
     dg::PCG<Container> m_pcg;
     dg::Extrapolation<Container> m_extra;
+    dg::Extrapolation<Container> m_extra2;
     dg::Helmholtz<Geometry, Matrix, Container> m_helmholtz;
+    dg::Helmholtz<Geometry, Matrix, Container> m_invgamma0;
+    dg::Helmholtz<Geometry, Matrix, Container> m_invgamma1;
+    dg::Helmholtz<Geometry, Matrix, Container> m_invgamma2; //invgamma2 = 1-(taui+1)lap
     dg::HelmholtzLN<Geometry, Matrix, Container> m_helmholtzLN;
     Parameters m_p;
 
@@ -48,13 +52,17 @@ struct Explicit
 
 template< class Geometry, class M, class Container>
 Explicit< Geometry, M, Container>::Explicit( const Geometry& grid, const Parameters& p ):
-    m_chi( evaluate( dg::zero, grid)), m_uE2(m_chi),
+    m_chi( evaluate( dg::zero, grid)), m_uE2(m_chi), m_invgamma1phi(m_chi), m_invgamma0ni(m_chi),
     m_phi( m_chi), m_dxphi(m_phi), m_dyphi( m_phi), m_uex(m_phi), m_uey(m_phi), m_ustx(m_phi), m_usty(m_phi), m_nomi(m_phi),
     m_laplaceM( grid,  p.diff_dir),
     m_adv( grid),
     m_pcg( m_phi, grid.size()),
     m_extra( 2, m_phi),
+    m_extra2( 2, m_invgamma1phi),
     m_helmholtz( -1., {grid, dg::centered}),
+    m_invgamma0( -p.taui, {grid, dg::centered}),
+    m_invgamma1( -p.taui/2., {grid, dg::centered}),
+    m_invgamma2( -p.taui-1, {grid, dg::centered}),
     m_helmholtzLN( -1., {grid, dg::centered}),
     m_p(p)   
 {
@@ -154,6 +162,35 @@ void Explicit<G, M, Container>::operator()( double t,
         dg::blas1::transform( yp, yp, dg::EXP<double>());
         dg::blas1::transform( yp, yp, dg::PLUS<double>(-1.));
 
+    }
+    else if(m_p.model == "FLR"){
+        //need to compute m_phi from y here!!! (y = Ni)
+        dg::blas2::symv(m_invgamma0, y, m_invgamma0ni);
+        m_extra2.extrapolate(t, m_invgamma1phi);
+        m_pcg.solve(m_invgamma2, m_invgamma1phi, m_invgamma0ni, m_invgamma2.precond(), m_invgamma2.weights(), m_p.eps_gamma); 
+        m_extra2.update( t, m_invgamma1phi);
+
+        //now we have to solve invgamma1phi for phi
+        m_extra.extrapolate( t, m_phi);
+        m_pcg.solve(m_invgamma1, m_phi, m_invgamma1phi,
+                    m_invgamma1.precond(), m_invgamma1.weights(), m_p.eps_gamma);
+        m_extra.update( t, m_phi);
+
+
+        //compute derivatives
+        dg::blas2::symv( m_centered[0], m_phi, m_dxphi);
+        dg::blas2::symv( m_centered[1], m_phi, m_dyphi);
+
+        dg::blas1::axpby(-1., m_dyphi, 0., m_uex); //compute ExB velocities v = uE = (-dy phi, dx phi)
+        dg::blas1::axpby(1., m_dxphi, 0., m_uey);
+        m_adv.upwind( -1., m_uex, m_uey, y, 0., yp); // yp = uE.nabla(lap phi)
+
+        //gradient terms
+        dg::blas1::axpby( -1./m_p.Ln, m_dyphi, 1., yp); //Ln is background gradient length in units of rho_s
+        
+        //compute uE2 and vorticity=lap phi
+        m_laplaceM.variation(m_phi, m_uE2);
+        dg::blas2::symv( m_laplaceM, m_phi, m_chi);
 
     }
 

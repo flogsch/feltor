@@ -18,7 +18,7 @@ struct Parameters
     double amp, sigma, posX, posY;
 
     std::string model;
-    double Ln;
+    double Ln, taui;
     Parameters() = default;
 
     Parameters( const dg::file::WrappedJsonValue& js) {
@@ -39,7 +39,7 @@ struct Parameters
         bcx = dg::str2bc(js["bc"][0].asString());
         bcy = dg::str2bc(js["bc"][1].asString());
         model = js["model"].get("type", "standardCHM").asString();
-        
+        taui = 0;
         if( "standardCHM" == model)
         {
             Ln = js["model"]["Ln"].asDouble();
@@ -51,6 +51,11 @@ struct Parameters
         else if( "boussinesq2" == model)
         {
             Ln = js["model"]["Ln"].asDouble();
+        }
+        else if( "FLR" == model)
+        {
+            Ln = js["model"]["Ln"].asDouble();
+            taui = js["model"]["taui"].asDouble();
         }
         else
             throw dg::Error( dg::Message(_ping_) << "Model : type `"<<model<<"` not recognized!\n");
