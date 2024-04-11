@@ -10,7 +10,7 @@
     "init":
     {
         "posX"  : 0.5,
-        "posY"  : 0.5,
+        "posY"  : 3,
         "amp"   : 1.0
     },
     "timestepper":
@@ -19,7 +19,7 @@
         "rtol" : 1e-5,
         "atol" : 1e-5
     },
-    "bc" : ["DIR", "PER"],
+    "bc" : ["PER", "PER"],
     "elliptic":
     {
         "eps_gamma" : 1e-5
@@ -28,7 +28,7 @@
     {
         "type": "FLR",
         "Ln" : 1.10000,
-        "taui" : 0
+        "taui" : 2
     },
     "output":
     {
@@ -38,6 +38,6 @@
        "n" : 3,
        "Nx" : 64,
        "Ny" : 64,
-       "itstp" : 1
+       "itstp" : 3
     }
 }

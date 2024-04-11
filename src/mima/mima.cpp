@@ -53,7 +53,8 @@ int main( int argc, char* argv[])
         rhs( grid, p);
     //////////////////create initial vector///////////////////////////////////////
     dg::Gaussian g( p.posX*p.lx, p.posY*p.ly, p.sigma, p.sigma, p.amp); //gaussian width is in absolute values
-    dg::x::DVec y0(dg::evaluate( g, grid)); // n_e' = gaussian
+    dg::SinY siny(p.amp, 0., p.posY*2.*M_PI/p.ly);
+    dg::x::DVec y0(dg::evaluate( siny, grid)); // n_e' = gaussian
 /*
     if( p.model == "gravity_local" || p.model == "gravity_global" ||
             p.model == "drift_global"){
