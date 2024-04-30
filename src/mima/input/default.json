@@ -10,8 +10,9 @@
     "init":
     {
         "posX"  : 0.5,
-        "posY"  : 2.0,
-        "amp"   : 1.0
+        "posY"  : 0.5,
+        "amp"   : 1.0,
+        "state" : 2
     },
     "timestepper":
     {
@@ -19,7 +20,7 @@
         "rtol" : 1e-5,
         "atol" : 1e-5
     },
-    "bc" : ["PER", "PER"],
+    "bc" : ["DIR", "PER"],
     "elliptic":
     {
         "eps_gamma" : 1e-5
@@ -28,8 +29,8 @@
     {
         "type": "FLR",
         "Ln" : 0.03,
-        "taui" : 1.0,
-        "init_cond" : "siny"
+        "taui" : 0.0,
+        "init_cond" : "vortex"
     },
     "output":
     {

@@ -8,14 +8,14 @@ namespace mima{
 
 struct Parameters
 {
-    unsigned n, Nx, Ny;
+    unsigned n, Nx, Ny, state;
     double lx, ly;
     dg::bc bcx, bcy;
 
     double eps_gamma;
     enum dg::direction diff_dir;
 
-    double amp, sigma, posX, posY;
+    double amp, sigma, posX, posY, R;
 
     std::string model;
     std::string init_cond;
@@ -28,6 +28,8 @@ struct Parameters
         Ny = js["grid"]["Ny"].asUInt();
         lx = js["grid"]["lx"].asDouble();
         ly = js["grid"]["ly"].asDouble();
+
+        state = js["init"]["state"].asUInt();
 
         eps_gamma = js["elliptic"]["eps_gamma"].asDouble();
         
@@ -67,7 +69,8 @@ struct Parameters
     void display( std::ostream& os = std::cout ) const
     {
         os << "Physical parameters are: \n"
-            <<"    Background gradient length:     = "<<Ln<<"\n";
+            <<"    Background gradient length     = "<<Ln<<"\n"
+            <<"    Ion temperature taui           = "<<taui<<"\n";
         os << "Equation parameters are: \n"
             <<"    "<<model<<"\n";
         os << "Boundary parameters are: \n"
@@ -81,11 +84,13 @@ struct Parameters
             <<"    n  = "<<n<<"\n"
             <<"    Nx = "<<Nx<<"\n"
             <<"    Ny = "<<Ny<<"\n";
-        os  <<"Blob parameters are: \n"
-            << "    width:        "<<sigma<<"\n"
-            << "    amplitude:    "<<amp<<"\n"
+        os  <<"Initial conditions are: \n"
+            << "    Initialized function:            "<<init_cond<<"\n"
+            << "    Blob width / Vortex radius:        "<<sigma<<"\n"
+            << "    Blob / Sine amplitude / u_dipole:    "<<amp<<"\n"
             << "    posX:         "<<posX<<"\n"
-            << "    posY:         "<<posY<<"\n";
+            << "    posY / Sine_k_y:         "<<posY<<"\n"
+            << "    vortex state:      "<<state<<"\n";
         os  <<"Stopping for Gamma CG:   "<<eps_gamma<<std::endl;
     }
 };

@@ -52,13 +52,16 @@ int main( int argc, char* argv[])
     mima::Explicit<dg::x::CartesianGrid2d, dg::x::DMatrix, dg::x::DVec>
         rhs( grid, p);
     //////////////////create initial vector///////////////////////////////////////
-    dg::Gaussian g( p.posX*p.lx, p.posY*p.ly, p.sigma, p.sigma, p.amp);
-    dg::SinY siny(p.amp, 0., p.posY*2.*M_PI/p.ly);
-    //dg::x::DVec y0(dg::evaluate( g, grid)); // n_e' = gaussian
+    dg::Gaussian g( p.posX*p.lx, p.posY*p.ly, p.sigma, p.sigma, p.amp); //gaussian initial condition
+    dg::SinY siny(p.amp, 0., p.posY*2.*M_PI/p.ly); // siny initial condition where posY denotes ky
+    dg::Vortex vortex(p.posX*p.lx, p.posY*p.ly, p.state, p.sigma, p.amp); //
     dg::x::DVec y0;
     if (p.init_cond == "siny"){ 
-        y0 = dg::evaluate( siny, grid); // n_e' = sin(y)
+        y0 = dg::evaluate(siny, grid); // n_i = sin(y)
         }
+    else if (p.init_cond == "vortex"){
+        y0 = dg::evaluate(vortex, grid);
+    }
     else{
         y0 = dg::evaluate(g, grid);
     }
