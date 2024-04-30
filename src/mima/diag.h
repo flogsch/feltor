@@ -43,7 +43,27 @@ std::vector<Record> diagnostics2d_static_list = {
 
 // time - dependent output (called periodically)
 std::map<std::string, std::vector<Record>> diagnostics2d_list = {
-    { "local", {
+    { "standardCHM", {
+    {"phi", "Electric potential",
+        []( dg::x::DVec& result, Variables& v) {
+            dg::blas1::copy(v.rhs.phi(), result);
+        }
+    },
+    {"vort", "Vorticity",
+        []( dg::x::DVec& result, Variables& v) {
+            //dg::blas2::gemv( 1., v.rhs.laplacianM(), v.rhs.phi(), 0., result);
+            dg::blas1::copy(v.rhs.chi(), result);
+        }
+    },
+    {"uE2", " ExB squared velocity",
+        []( dg::x::DVec& result, Variables& v) {
+            //dg::blas1::axpby( 1., v.rhs.uE2(), 0., result);
+            dg::blas1::copy(v.rhs.uE2(), result);
+        }
+    }
+                }
+    },
+    { "FLR", {
     {"phi", "Electric potential",
         []( dg::x::DVec& result, Variables& v) {
             dg::blas1::copy(v.rhs.phi(), result);

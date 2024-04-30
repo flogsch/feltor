@@ -18,6 +18,7 @@ struct Parameters
     double amp, sigma, posX, posY;
 
     std::string model;
+    std::string init_cond;
     double Ln, taui;
     Parameters() = default;
 
@@ -40,6 +41,8 @@ struct Parameters
         bcy = dg::str2bc(js["bc"][1].asString());
         model = js["model"].get("type", "standardCHM").asString();
         taui = 0;
+        init_cond = js["model"]["init_cond"].asString();
+
         if( "standardCHM" == model)
         {
             Ln = js["model"]["Ln"].asDouble();

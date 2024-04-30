@@ -10,7 +10,7 @@
     "init":
     {
         "posX"  : 0.5,
-        "posY"  : 3,
+        "posY"  : 2.0,
         "amp"   : 1.0
     },
     "timestepper":
@@ -27,15 +27,16 @@
     "model" :
     {
         "type": "FLR",
-        "Ln" : 1.10000,
-        "taui" : 2
+        "Ln" : 0.03,
+        "taui" : 1.0,
+        "init_cond" : "siny"
     },
     "output":
     {
        "type" : "glfw",
-       "tend" : 1,
+       "tend" : 100,
        "maxout" : 500,
-       "n" : 3,
+       "n" : 1,
        "Nx" : 64,
        "Ny" : 64,
        "itstp" : 3

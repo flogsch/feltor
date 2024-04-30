@@ -52,9 +52,18 @@ int main( int argc, char* argv[])
     mima::Explicit<dg::x::CartesianGrid2d, dg::x::DMatrix, dg::x::DVec>
         rhs( grid, p);
     //////////////////create initial vector///////////////////////////////////////
-    dg::Gaussian g( p.posX*p.lx, p.posY*p.ly, p.sigma, p.sigma, p.amp); //gaussian width is in absolute values
+    dg::Gaussian g( p.posX*p.lx, p.posY*p.ly, p.sigma, p.sigma, p.amp);
     dg::SinY siny(p.amp, 0., p.posY*2.*M_PI/p.ly);
-    dg::x::DVec y0(dg::evaluate( siny, grid)); // n_e' = gaussian
+    //dg::x::DVec y0(dg::evaluate( g, grid)); // n_e' = gaussian
+    dg::x::DVec y0;
+    if (p.init_cond == "siny"){ 
+        y0 = dg::evaluate( siny, grid); // n_e' = sin(y)
+        }
+    else{
+        y0 = dg::evaluate(g, grid);
+    }
+    
+    
 /*
     if( p.model == "gravity_local" || p.model == "gravity_global" ||
             p.model == "drift_global"){
