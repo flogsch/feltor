@@ -55,12 +55,21 @@ int main( int argc, char* argv[])
     dg::Gaussian g( p.posX*p.lx, p.posY*p.ly, p.sigma, p.sigma, p.amp); //gaussian initial condition
     dg::SinY siny(p.amp, 0., p.posY*2.*M_PI/p.ly); // siny initial condition where posY denotes ky
     dg::Vortex vortex(p.posX*p.lx, p.posY*p.ly, p.state, p.sigma, p.amp); //
+    dg::Lamb lamb(p.posX*p.lx, p.posY*p.ly, p.sigma, p.amp);
+    dg::BathRZ bath(p.N_kR, p.N_kZ, p.R_min, p.Z_min, p.bath_gamma, p.L_E, p.bath_amp);
+
     dg::x::DVec y0;
     if (p.init_cond == "siny"){ 
         y0 = dg::evaluate(siny, grid); // n_i = sin(y)
         }
     else if (p.init_cond == "vortex"){
         y0 = dg::evaluate(vortex, grid);
+    }
+    else if (p.init_cond == "lamb"){
+        y0 = dg::evaluate(lamb, grid);
+    }
+    else if (p.init_cond == "bath"){
+        y0 = dg::evaluate(bath, grid);
     }
     else{
         y0 = dg::evaluate(g, grid);

@@ -17,6 +17,9 @@ struct Parameters
 
     double amp, sigma, posX, posY, R;
 
+    unsigned N_kR, N_kZ;
+    double R_min, Z_min, bath_gamma, L_E, bath_amp;
+
     std::string model;
     std::string init_cond;
     double Ln, taui;
@@ -34,7 +37,7 @@ struct Parameters
         eps_gamma = js["elliptic"]["eps_gamma"].asDouble();
         
         diff_dir = dg::centered;
-        sigma = (double(std::min(lx,ly))/32.);
+        sigma = (double(std::min(lx,ly))/45.);
         amp = js["init"]["amp"].asDouble();
         //amp = (double(std::min(lx,ly))/320.);
         posX = js["init"]["posX"].asDouble();
@@ -44,6 +47,16 @@ struct Parameters
         model = js["model"].get("type", "standardCHM").asString();
         taui = 0;
         init_cond = js["model"]["init_cond"].asString();
+
+
+        N_kR = js["bath"]["N_kR"].asUInt();
+        N_kZ = js["bath"]["N_kZ"].asUInt();
+        R_min = js["bath"]["R_min"].asDouble();
+        Z_min = js["bath"]["Z_min"].asDouble();
+        bath_gamma = js["bath"]["gamma"].asDouble();
+        L_E = js["bath"]["L_E"].asDouble();
+        bath_amp = js["bath"]["bath_amp"].asDouble();
+
 
         if( "standardCHM" == model)
         {

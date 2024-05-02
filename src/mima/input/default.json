@@ -1,7 +1,7 @@
 {
     "grid":
     {
-        "n" :  3,
+        "n" :  4,
         "Nx" : 64,
         "Ny" : 64,
         "lx"  : 64,
@@ -11,8 +11,18 @@
     {
         "posX"  : 0.5,
         "posY"  : 0.5,
-        "amp"   : 1.0,
+        "amp"   : 0.5,
         "state" : 2
+    },
+    "bath":
+    {
+        "N_kR" : 16,
+        "N_kZ" : 16,
+        "R_min" : 0.1,
+        "Z_min" : 0.1,
+        "gamma" : 30.0,
+        "L_E" : 5.0,
+        "bath_amp" : 1.0
     },
     "timestepper":
     {
@@ -28,18 +38,18 @@
     "model" :
     {
         "type": "FLR",
-        "Ln" : 0.03,
+        "Ln" : 20.0,
         "taui" : 0.0,
-        "init_cond" : "vortex"
+        "init_cond" : "gauss"
     },
     "output":
     {
-       "type" : "glfw",
-       "tend" : 100,
+       "type" : "netcdf",
+       "tend" : 500,
        "maxout" : 500,
        "n" : 1,
-       "Nx" : 64,
-       "Ny" : 64,
+       "Nx" : 256,
+       "Ny" : 256,
        "itstp" : 3
     }
 }
