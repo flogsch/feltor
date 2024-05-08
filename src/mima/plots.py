@@ -20,13 +20,18 @@ tend = len(ds["time"])-1
 data = ds[name]
 
 #mydata = np.flip(data, axis=1)
-mytime = 0
-vmax = 5#np.max(abs(data[mytime,:,:]*20))
+mytime = 21
+vmax = 0.5#np.max(abs(data[mytime,:,:]*20))
 bins = np.linspace(-vmax, vmax, 10, endpoint=True)
+k = data[mytime]
+
+
+super_threshold_indices = np.abs(k) < 1e-6
+k[super_threshold_indices] = 0
 mydata = np.digitize(data[mytime]*20,bins)
 
-cax = plt.contourf(np.array(range(256))/4, np.array(range(256))/4, data[mytime]*20,levels=bins, cmap="seismic", vmin=-vmax, vmax=vmax, extend="both")
-plt.contour(np.array(range(256))/4, np.array(range(256))/4, data[mytime]*20,levels=bins, colors="gray", linewidths=0.5, linestyles="solid", negative_linestyles="solid")
+cax = plt.contourf(k*20,levels=bins, cmap="seismic", vmin=-vmax, vmax=vmax, extend="both", norm="logit")
+#plt.contour(np.array(range(512))/8, np.array(range(512))/8, data[mytime]*20,levels=bins, colors="gray", linewidths=0.5, linestyles="solid", negative_linestyles="solid")
 plt.colorbar(cax)
 
 '''
@@ -40,4 +45,6 @@ def animate(i):
 #anim.save('517.gif')
 '''
 plt.show()
-print(ds["time"][1])
+print(ds["time"][mytime])
+print(super_threshold_indices)
+

@@ -37,7 +37,7 @@ struct Parameters
         eps_gamma = js["elliptic"]["eps_gamma"].asDouble();
         
         diff_dir = dg::centered;
-        sigma = (double(std::min(lx,ly))/45.);
+        sigma = js["init"]["sigma"].asDouble();
         amp = js["init"]["amp"].asDouble();
         //amp = (double(std::min(lx,ly))/320.);
         posX = js["init"]["posX"].asDouble();
