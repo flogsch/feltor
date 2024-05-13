@@ -58,7 +58,13 @@ int main( int argc, char* argv[])
     dg::Lamb lamb(p.posX*p.lx, p.posY*p.ly, p.sigma, p.amp);
     dg::BathRZ bath(p.N_kR, p.N_kZ, p.R_min, p.Z_min, p.bath_gamma, p.L_E, p.bath_amp);
 
-    dg::x::DVec y0;
+    dg::x::DVec y0;/*, temp;
+    dg::PCG<Container> m_pcg;
+    dg::Helmholtz<Geometry, Matrix, Container> m_helmholtz;
+    dg::Helmholtz<Geometry, Matrix, Container> m_invgamma0;
+    dg::Helmholtz<Geometry, Matrix, Container> m_invgamma1;
+    dg::Helmholtz<Geometry, Matrix, Container> m_invgamma2; //invgamma2 = 1-(taui+1)lap
+*/
     if (p.init_cond == "siny"){ 
         y0 = dg::evaluate(siny, grid); // n_i = sin(y)
         }

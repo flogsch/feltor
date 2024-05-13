@@ -14,6 +14,7 @@ struct Explicit
 
     const Container& chi() const { return m_chi;}
     const Container& phi() const { return m_phi;}
+    const Container& Ni() const { return m_Ni;}
     const Container& uE2() const { return m_uE2;}        
 
     dg::Elliptic<Geometry, Matrix, Container>& laplacianM( ) {
@@ -28,7 +29,7 @@ struct Explicit
     
   private:
     //use chi and omega as helpers to compute square velocity in uE2
-    Container m_chi, m_uE2, m_invgamma1phi, m_invgamma0ni;
+    Container m_chi, m_uE2, m_invgamma1phi, m_invgamma0ni, m_Ni;
     Container m_phi, m_dxphi, m_dyphi, m_uex, m_uey, m_ustx, m_usty, m_nomi;
 
     //matrices and solvers
@@ -52,7 +53,7 @@ struct Explicit
 
 template< class Geometry, class M, class Container>
 Explicit< Geometry, M, Container>::Explicit( const Geometry& grid, const Parameters& p ):
-    m_chi( evaluate( dg::zero, grid)), m_uE2(m_chi), m_invgamma1phi(m_chi), m_invgamma0ni(m_chi),
+    m_chi( evaluate( dg::zero, grid)), m_uE2(m_chi), m_invgamma1phi(m_chi), m_invgamma0ni(m_chi), m_Ni(m_chi),
     m_phi( m_chi), m_dxphi(m_phi), m_dyphi( m_phi), m_uex(m_phi), m_uey(m_phi), m_ustx(m_phi), m_usty(m_phi), m_nomi(m_phi),
     m_laplaceM( grid,  p.diff_dir),
     m_adv( grid),
@@ -164,6 +165,7 @@ void Explicit<G, M, Container>::operator()( double t,
 
     }
     else if(m_p.model == "FLR"){
+        dg::blas1::copy(y, m_Ni);
         //need to compute m_phi from y here!!! (y = Ni)
         dg::blas2::symv(m_invgamma0, y, m_invgamma0ni);
         m_extra2.extrapolate(t, m_invgamma1phi);

@@ -19,10 +19,10 @@
     {
         "N_kR" : 16,
         "N_kZ" : 16,
-        "R_min" : 0.1,
-        "Z_min" : 0.1,
+        "R_min" : 8,
+        "Z_min" : 8,
         "gamma" : 30.0,
-        "L_E" : 5.0,
+        "L_E" : 10.0,
         "bath_amp" : 1.0
     },
     "timestepper":
@@ -40,7 +40,7 @@
     {
         "type": "FLR",
         "Ln" : 20.0,
-        "taui" : 0.0,
+        "taui" : 1.0,
         "init_cond" : "gauss"
     },
     "output":

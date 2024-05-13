@@ -69,6 +69,11 @@ std::map<std::string, std::vector<Record>> diagnostics2d_list = {
             dg::blas1::copy(v.rhs.phi(), result);
         }
     },
+    {"Ni", "Ion gyrocenter density",
+        []( dg::x::DVec& result, Variables& v) {
+            dg::blas1::copy(v.rhs.Ni(), result);
+        }
+    },
     {"vort", "Vorticity",
         []( dg::x::DVec& result, Variables& v) {
             //dg::blas2::gemv( 1., v.rhs.laplacianM(), v.rhs.phi(), 0., result);
