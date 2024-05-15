@@ -45,7 +45,7 @@
     },
     "output":
     {
-       "type" : "netcdf",
+       "type" : "glfw",
        "tend" : 500,
        "maxout" : 40,
        "n" : 1,

@@ -58,13 +58,13 @@ int main( int argc, char* argv[])
     dg::Lamb lamb(p.posX*p.lx, p.posY*p.ly, p.sigma, p.amp);
     dg::BathRZ bath(p.N_kR, p.N_kZ, p.R_min, p.Z_min, p.bath_gamma, p.L_E, p.bath_amp);
 
-    dg::x::DVec y0;/*, temp;
-    dg::PCG<Container> m_pcg;
-    dg::Helmholtz<Geometry, Matrix, Container> m_helmholtz;
-    dg::Helmholtz<Geometry, Matrix, Container> m_invgamma0;
-    dg::Helmholtz<Geometry, Matrix, Container> m_invgamma1;
-    dg::Helmholtz<Geometry, Matrix, Container> m_invgamma2; //invgamma2 = 1-(taui+1)lap
-*/
+    dg::x::DVec y0;
+    
+    
+    dg::Helmholtz<dg::x::CartesianGrid2d, dg::x::DMatrix, dg::x::DVec> m_helmholtz( -1., {grid, dg::centered});
+    dg::Helmholtz<dg::x::CartesianGrid2d, dg::x::DMatrix, dg::x::DVec> m_invgamma0( -p.taui, {grid, dg::centered});
+    dg::Helmholtz<dg::x::CartesianGrid2d, dg::x::DMatrix, dg::x::DVec> m_invgamma1( -p.taui/2., {grid, dg::centered});
+    dg::Helmholtz<dg::x::CartesianGrid2d, dg::x::DMatrix, dg::x::DVec> m_invgamma2( -p.taui-1, {grid, dg::centered}); //invgamma2 = 1-(taui+1)lap */
     if (p.init_cond == "siny"){ 
         y0 = dg::evaluate(siny, grid); // n_i = sin(y)
         }
@@ -80,6 +80,12 @@ int main( int argc, char* argv[])
     else{
         y0 = dg::evaluate(g, grid);
     }
+    dg::blas2::symv(m_invgamma1,y0,y0);
+    dg::blas2::symv(m_invgamma2, y0, y0);
+    auto temp1 = y0;
+    dg::PCG<dg::x::DVec> m_pcg( y0, grid.size());
+    m_pcg.solve(m_invgamma0, y0, temp1, m_invgamma0.precond(), m_invgamma0.weights(), p.eps_gamma);
+
     
     
 /*
