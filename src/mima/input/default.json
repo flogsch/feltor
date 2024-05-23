@@ -11,8 +11,8 @@
     {
         "posX"  : 0.5,
         "posY"  : 0.5,
-        "amp"   : 0.1,
-        "sigma" : 2.0,
+        "amp"   : 0.010,
+        "sigma" : 1.41421,
         "state" : 2
     },
     "bath":
@@ -31,7 +31,7 @@
         "rtol" : 1e-5,
         "atol" : 1e-5
     },
-    "bc" : ["DIR", "PER"],
+    "bc" : ["PER", "PER"],
     "elliptic":
     {
         "eps_gamma" : 1e-5
@@ -40,14 +40,14 @@
     {
         "type": "FLR",
         "Ln" : 20.0,
-        "taui" : 1.0,
+        "taui" : 0.0,
         "init_cond" : "gauss"
     },
     "output":
     {
-       "type" : "glfw",
+       "type" : "netcdf",
        "tend" : 500,
-       "maxout" : 40,
+       "maxout" : 50,
        "n" : 1,
        "Nx" : 64,
        "Ny" : 64,

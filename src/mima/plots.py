@@ -12,28 +12,29 @@ Ny = d["output"]["Ny"]
 #print(Nx)
 fn = "mima.nc"
 ds = nc.Dataset(fn)
-name = "phi"
+name = "vort"
 # print(ds)
-
+amp = d["init"]["amp"]
+sigma = d["init"]["sigma"]
 
 tend = len(ds["time"])-1
 data = ds[name]
 
 #mydata = np.flip(data, axis=1)
-mytime = 21
-vmax = 0.5#np.max(abs(data[mytime,:,:]*20))
+mytime = 50
+vmax = 0.05/20#np.max(abs(data[mytime,:,:]*20))
 bins = np.linspace(-vmax, vmax, 10, endpoint=True)
 k = data[mytime]
 
 
 super_threshold_indices = np.abs(k) < 1e-6
 k[super_threshold_indices] = 0
-mydata = np.digitize(data[mytime]*20,bins)
+mydata = np.digitize(data[mytime],bins)
 
-cax = plt.contourf(k*20,levels=bins, cmap="seismic", vmin=-vmax, vmax=vmax, extend="both", norm="logit")
+cax = plt.contourf(k,levels=bins, cmap="seismic", vmin=-vmax, vmax=vmax, extend="both")
 #plt.contour(np.array(range(512))/8, np.array(range(512))/8, data[mytime]*20,levels=bins, colors="gray", linewidths=0.5, linestyles="solid", negative_linestyles="solid")
 plt.colorbar(cax)
-
+plt.title("amp="+str(amp)+", sigma="+str(sigma))
 '''
 fig,ax = plt.subplots()
 cax = plt.pcolormesh(data[mytime]*20, cmap='seismic',vmin=-vmax, vmax=vmax)#, vmin=-vmax, vmax=vmax)

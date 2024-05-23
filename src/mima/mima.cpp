@@ -80,11 +80,15 @@ int main( int argc, char* argv[])
     else{
         y0 = dg::evaluate(g, grid);
     }
-    dg::blas2::symv(m_invgamma1,y0,y0);
-    dg::blas2::symv(m_invgamma2, y0, y0);
     auto temp1 = y0;
+    dg::blas2::symv(m_invgamma1,temp1,y0);
+    dg::blas2::symv(m_invgamma2, y0, temp1);
+    
     dg::PCG<dg::x::DVec> m_pcg( y0, grid.size());
+    //m_pcg.set_verbose(true);
+    //dg::blas2::symv(m_invgamma0,y0,temp1);
     m_pcg.solve(m_invgamma0, y0, temp1, m_invgamma0.precond(), m_invgamma0.weights(), p.eps_gamma);
+    
 
     
     
