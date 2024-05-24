@@ -11,7 +11,7 @@
     {
         "posX"  : 0.5,
         "posY"  : 0.5,
-        "amp"   : 0.010,
+        "amp"   : 0.1,
         "sigma" : 1.41421,
         "state" : 2
     },
@@ -46,11 +46,11 @@
     "output":
     {
        "type" : "netcdf",
-       "tend" : 500,
-       "maxout" : 50,
+       "tend" : 25,
+       "maxout" : 25,
        "n" : 1,
-       "Nx" : 64,
-       "Ny" : 64,
+       "Nx" : 256,
+       "Ny" : 256,
        "itstp" : 3
     }
 }

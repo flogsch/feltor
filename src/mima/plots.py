@@ -12,7 +12,7 @@ Ny = d["output"]["Ny"]
 #print(Nx)
 fn = "mima.nc"
 ds = nc.Dataset(fn)
-name = "vort"
+name = "phi"
 # print(ds)
 amp = d["init"]["amp"]
 sigma = d["init"]["sigma"]
@@ -21,8 +21,8 @@ tend = len(ds["time"])-1
 data = ds[name]
 
 #mydata = np.flip(data, axis=1)
-mytime = 50
-vmax = 0.05/20#np.max(abs(data[mytime,:,:]*20))
+mytime = 25
+vmax = 0.05/4#np.max(abs(data[mytime,:,:]))#0.05#
 bins = np.linspace(-vmax, vmax, 10, endpoint=True)
 k = data[mytime]
 

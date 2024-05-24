@@ -188,7 +188,7 @@ void Explicit<G, M, Container>::operator()( double t,
         m_adv.upwind( -1., m_uex, m_uey, y, 0., yp); // yp = uE.nabla(lap phi)
 
         //gradient terms
-        dg::blas1::axpby( -1./m_p.Ln, m_dyphi, 1., yp); //Ln is background gradient length in units of rho_s
+        dg::blas1::axpby( -1., m_dyphi, 1., yp); //Ln is background gradient length in units of rho_s
         
         //compute uE2 and vorticity=lap phi
         m_laplaceM.variation(m_phi, m_uE2);
