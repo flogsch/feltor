@@ -66,7 +66,7 @@ struct Parameters
         {
             Ln = js["model"]["Ln"].asDouble();
         }
-        else if( "boussinesq2" == model)
+        else if( "FLRapprox" == model)
         {
             Ln = js["model"]["Ln"].asDouble();
         }

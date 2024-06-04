@@ -81,7 +81,7 @@ int main( int argc, char* argv[])
         y0 = dg::evaluate(g, grid);
     }
     auto temp1 = y0;
-    dg::blas2::symv(m_invgamma1,temp1,y0);
+    dg::blas2::symv(m_invgamma1, temp1, y0);
     dg::blas2::symv(m_invgamma2, y0, temp1);
     
     dg::PCG<dg::x::DVec> m_pcg( y0, grid.size());

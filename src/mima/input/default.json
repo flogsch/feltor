@@ -2,8 +2,8 @@
     "grid":
     {
         "n" :  1,
-        "Nx" : 512,
-        "Ny" : 512,
+        "Nx" : 256,
+        "Ny" : 256,
         "lx"  : 64,
         "ly"  : 64
     },
@@ -38,14 +38,14 @@
     },
     "model" :
     {
-        "type": "FLR",
+        "type": "FLRapprox",
         "Ln" : 20.0,
-        "taui" : 0.0,
-        "init_cond" : "gauss"
+        "taui" : 1.0,
+        "init_cond" : "bath"
     },
     "output":
     {
-       "type" : "netcdf",
+       "type" : "glfw",
        "tend" : 25,
        "maxout" : 25,
        "n" : 1,
