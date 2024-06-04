@@ -88,7 +88,7 @@ std::map<std::string, std::vector<Record>> diagnostics2d_list = {
     }
                 }
     },
-    { "FLR", {
+    { "FLRapprox", {
     {"phi", "Electric potential",
         []( dg::x::DVec& result, Variables& v) {
             dg::blas1::copy(v.rhs.phi(), result);

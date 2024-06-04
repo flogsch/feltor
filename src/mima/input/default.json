@@ -40,12 +40,12 @@
     {
         "type": "FLRapprox",
         "Ln" : 20.0,
-        "taui" : 1.0,
+        "taui" : 0.0,
         "init_cond" : "bath"
     },
     "output":
     {
-       "type" : "glfw",
+       "type" : "netcdf",
        "tend" : 25,
        "maxout" : 25,
        "n" : 1,

@@ -53,13 +53,16 @@ int main( int argc, char* argv[])
         rhs( grid, p);
     //////////////////create initial vector///////////////////////////////////////
     dg::Gaussian g( p.posX*p.lx, p.posY*p.ly, p.sigma, p.sigma, p.amp); //gaussian initial condition
+    dg::Gaussian g1( 0.45*p.lx, p.posY*p.ly, p.sigma, p.sigma, p.amp);
+    dg::Gaussian g2( 0.55*p.lx, p.posY*p.ly, p.sigma, p.sigma, p.amp);
     dg::SinY siny(p.amp, 0., p.posY*2.*M_PI/p.ly); // siny initial condition where posY denotes ky
     dg::Vortex vortex(p.posX*p.lx, p.posY*p.ly, p.state, p.sigma, p.amp); //
     dg::Lamb lamb(p.posX*p.lx, p.posY*p.ly, p.sigma, p.amp);
     dg::BathRZ bath(p.N_kR, p.N_kZ, p.R_min, p.Z_min, p.bath_gamma, p.L_E, p.bath_amp);
 
     dg::x::DVec y0;
-    
+    dg::x::DVec firstgauss;
+    dg::x::DVec secondgauss;
     
     dg::Helmholtz<dg::x::CartesianGrid2d, dg::x::DMatrix, dg::x::DVec> m_helmholtz( -1., {grid, dg::centered});
     dg::Helmholtz<dg::x::CartesianGrid2d, dg::x::DMatrix, dg::x::DVec> m_invgamma0( -p.taui, {grid, dg::centered});
@@ -76,6 +79,12 @@ int main( int argc, char* argv[])
     }
     else if (p.init_cond == "bath"){
         y0 = dg::evaluate(bath, grid);
+    }
+    else if (p.init_cond == "doublegauss"){
+        y0 = dg::evaluate(g, grid);
+        firstgauss = dg::evaluate(g1,grid);
+        secondgauss = dg::evaluate(g2,grid);
+        dg::blas1::axpby(1.,firstgauss, 1., secondgauss, y0);
     }
     else{
         y0 = dg::evaluate(g, grid);
