@@ -19,6 +19,7 @@ struct Parameters
 
     unsigned N_kR, N_kZ;
     double R_min, Z_min, bath_gamma, L_E, bath_amp;
+    double sinedrive_amp, sinedrive_k;
 
     std::string model;
     std::string init_cond;
@@ -56,6 +57,9 @@ struct Parameters
         bath_gamma = js["bath"]["gamma"].asDouble();
         L_E = js["bath"]["L_E"].asDouble();
         bath_amp = js["bath"]["bath_amp"].asDouble();
+
+        sinedrive_amp = js["sinedrive"]["sinedrive_amp"].asDouble();
+        sinedrive_k = js["sinedrive"]["sinedrive_k"].asDouble();
 
 
         if( "standardCHM" == model)

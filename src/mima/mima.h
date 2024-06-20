@@ -30,7 +30,7 @@ struct Explicit
   private:
     //use chi and omega as helpers to compute square velocity in uE2
     Container m_chi, m_uE2, m_invgamma1phi, m_invgamma0ni, m_Ni;
-    Container m_phi, m_psi, m_dxphi, m_dyphi, m_uex, m_uey, m_ustx, m_usty, m_nomi;
+    Container m_phi, m_psi, m_dxphi, m_dyphi, m_uex, m_uey, m_ustx, m_usty, m_nomi, m_sinedrive;
 
     //matrices and solvers
     dg::Elliptic<Geometry, Matrix, Container> m_laplaceM;
@@ -46,6 +46,8 @@ struct Explicit
     dg::Helmholtz<Geometry, Matrix, Container> m_invgamma1;
     dg::Helmholtz<Geometry, Matrix, Container> m_invgamma2; //invgamma2 = 1-(taui+1)lap
     dg::HelmholtzLN<Geometry, Matrix, Container> m_helmholtzLN;
+    dg::SinY sinedrive;
+
     Parameters m_p;
 
     unsigned m_ncalls = 0;
@@ -67,10 +69,12 @@ Explicit< Geometry, M, Container>::Explicit( const Geometry& grid, const Paramet
     m_invgamma1( -p.taui/2., {grid, dg::centered}),
     m_invgamma2( -p.taui-1, {grid, dg::centered}),
     m_helmholtzLN( -1., {grid, dg::centered}),
+    sinedrive(m_p.sinedrive_amp, 0., m_p.sinedrive_k*2.*M_PI/m_p.ly),
     m_p(p)   
 {
     m_centered = {dg::create::dx( grid, m_p.bcx),
                   dg::create::dy( grid, m_p.bcy)};
+    m_sinedrive = dg::evaluate(sinedrive, grid);
 }
 
 
@@ -174,6 +178,12 @@ void Explicit<G, M, Container>::operator()( double t,
         m_pcg.solve(m_invgamma1, m_phi, m_invgamma1phi,
                     m_invgamma1.precond(), m_invgamma1.weights(), m_p.eps_gamma);
         m_extra.update( t, m_phi);
+
+        //now add a driving force to phi
+        if (m_p.sinedrive_amp !=0.0){
+            dg::blas1::axpby(1., m_sinedrive, 1., m_phi);
+        }
+        
         //now compute psi out of phi, psi = gamma1 phi
         m_extra3.extrapolate( t, m_psi);
         m_pcg.solve(m_invgamma1, m_psi, m_phi,
