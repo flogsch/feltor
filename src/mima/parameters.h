@@ -46,9 +46,9 @@ struct Parameters
         bcx = dg::str2bc(js["bc"][0].asString());
         bcy = dg::str2bc(js["bc"][1].asString());
         model = js["model"].get("type", "standardCHM").asString();
-        taui = 0;
+        taui = js["model"]["taui"].asDouble();
         init_cond = js["model"]["init_cond"].asString();
-
+        Ln = js["model"]["Ln"].asDouble();
 
         N_kR = js["bath"]["N_kR"].asUInt();
         N_kZ = js["bath"]["N_kZ"].asUInt();
@@ -77,7 +77,7 @@ struct Parameters
         else if( "FLR" == model)
         {
             Ln = js["model"]["Ln"].asDouble();
-            taui = js["model"]["taui"].asDouble();
+            
         }
         else
             throw dg::Error( dg::Message(_ping_) << "Model : type `"<<model<<"` not recognized!\n");
